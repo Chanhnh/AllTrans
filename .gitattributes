@@ -1,6 +1,0 @@
-#pattern filter=crypt diff=crypt merge==crypt
-android_sign_key.jks filter=crypt diff=crypt merge==crypt
-app/src/main/res/values/keys.xml filter=crypt diff=crypt merge==crypt
-PlayStore/google-play-api-key.json filter=crypt diff=crypt merge==crypt
-PlayStore/client_secrets.json filter=crypt diff=crypt merge==crypt
-gradle.properties filter=crypt diff=crypt merge==crypt

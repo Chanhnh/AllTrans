@@ -1,83 +1,64 @@
-<!--
-  ~ Copyright 2017 Akhil Kedia
-  ~ This file is part of AllTrans.
-  ~
-  ~ AllTrans is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ AllTrans is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with AllTrans. If not, see <http://www.gnu.org/licenses/>.
-  ~
-  -->
-
-<androidx.percentlayout.widget.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:descendantFocusability="blocksDescendants"
-    android:padding="6dip">
-
+    android:padding="6dp"> <!-- Use dp para padding, dip é depreciado -->
 
     <CheckBox
         android:id="@+id/checkBox"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="fill"
-        app:layout_marginEndPercent="90%"
-        app:layout_marginTopPercent="10%"
-        app:layout_widthPercent="10%" />
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintWidth_percent="0.10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:gravity="center" /> <!-- Ajuste a gravidade conforme necessário -->
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:contentDescription="@string/app_icon"
-        android:gravity="fill"
         android:src="@drawable/ic_list_icon_placeholder"
-        app:layout_marginStartPercent="10%"
-        app:layout_marginEndPercent="75%"
-        app:layout_widthPercent="15%" />
+        app:layout_constraintWidth_percent="0.15"
+        app:layout_constraintStart_toEndOf="@id/checkBox"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:scaleType="fitCenter" /> <!-- Adicione scaleType para melhor controle da imagem -->
 
     <TextView
         android:id="@+id/firstLine"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:ellipsize="marquee"
-        android:gravity="fill"
         android:text="@string/example_application"
         android:textSize="16sp"
-        app:layout_heightPercent="50%"
-        app:layout_marginEndPercent="2%"
-        app:layout_marginStartPercent="28%"
-        app:layout_marginTopPercent="5%"
-        app:layout_widthPercent="70%"
         android:singleLine="true"
         android:marqueeRepeatLimit="marquee_forever"
-        android:scrollHorizontally="false" />
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/secondLine"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constrainedWidth="true" /> <!-- Para ellipsize funcionar corretamente com 0dp -->
 
     <TextView
         android:id="@+id/secondLine"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:ellipsize="marquee"
-        android:gravity="fill"
         android:text="@string/description"
         android:textSize="12sp"
-        app:layout_heightPercent="35%"
-        app:layout_marginEndPercent="2%"
-        app:layout_marginStartPercent="28%"
-        app:layout_marginTopPercent="60%"
-        app:layout_widthPercent="70%"
         android:singleLine="true"
         android:marqueeRepeatLimit="marquee_forever"
-        android:scrollHorizontally="false"/>
+        app:layout_constraintStart_toStartOf="@id/firstLine"
+        app:layout_constraintEnd_toEndOf="@id/firstLine"
+        app:layout_constraintTop_toBottomOf="@id/firstLine"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constrainedWidth="true"/> <!-- Para ellipsize funcionar corretamente com 0dp -->
 
-
-</androidx.percentlayout.widget.PercentRelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_apps"
+        android:icon="@drawable/ic_apps"
+        android:title="Apps" />
+
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Global" />
+
+
+    <item
+        android:id="@+id/navigation_instructions"
+        android:icon="@drawable/ic_instructions"
+        android:title="@string/instructions" />
+
+</menu>

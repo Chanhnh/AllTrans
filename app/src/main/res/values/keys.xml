@@ -1,28 +1,5 @@
-U2FsdGVkX1/bp371DcswjDNG/EFG1CWcA3ZHjKl+AOVL8xG8uZSZO7hLc9wRBpxm
-nx6xDsPpELnuor4iGg9u6CLNyqj1H8I46SQBjDD7Vn6viwtoFB2SaepmANwF4zf/
-JUvtRCxAad0T8yvj07G7+/fSqsufvfgjbgZNncwr8bxGINAItjQYrbgKyU2frNN2
-o+7+fMD2CKTcBr/yXiyNuP8jGo8AxCnhNGk4biMQVhb1zM1zk2A6jq/kkfAhWHKP
-wqYi/uWHMSy+dS5e3zFmX57narwo35JgGe6VkeMFs+SAEknmXD2qsQTzmxpppEv8
-cuELy8/XJO7KCNByI7d9q/gTnPMRaAdyxk7Ied8GDXBi1VfFakkLhQLluNtLghfK
-WlaYVn7/oBLkgOHwCq6399ieGJfw+v0zUiaOv8aMeQhjYHT0wfYSqfUo39LM9W15
-m8JczFmjNRJ1B4YdM84dWcneqdck0aJrUVN2Wl31h7tkUs5W65yUSHQbX3h2ee5m
-FAuy2Iu0z6FtPm0mlsw1VY3h7BoBV3cngsVp4H7NFxWeIxTi+aGilgOim6dt+tYg
-KHHsjhlVa79XSPeUJmW7Za41HH2w/DJRhd/0VhdhNteukksgC7BUU6qxQpwPzj2I
-2mw5lkccXuL3kQwuHh4BpsIiPAng3TbSk4hcVN7YlfJTYnyFYofDU4DSuxvwBG6S
-d53rseEFIoeaVPm6PrjwZrUDQIJ8HbVCE5Qvon9+AAOwFnWe3VWQZ22XiG1ZUJPQ
-lDjP2998os4Of+Z/zoBfDhA/VlTOWXmKWj4LJMAEvH0oqgQr0W1Xjsdk/IJrzYa0
-MRiWgo7Z1n9w7ouiUYXnqyK+Qbnmnw3GgQAhLCPEBT1QYR6mTuEfeIxKFPjxVSuS
-qQ5l+h0I23ZQI+6V6aIEnHzPMC+nKAPdQpErm131qDt2yUgqzKSeE78LCGHJ5p24
-3nQg1R4ovWkW0bk2gW/bHglrkmXntLfhQ7GDgZYGZ310tLLZyaoj55NqtSW1yZN0
-m/beWTn5a0nx2TaaQmDjilMa7YzI77yx2I6oxVGqijtnHH6rxvrQxoR9NL6eVbiC
-mMtkk2dRXjSg+h/nCttv78Odeg7nhwiC87p3KeK2JDp/SbZwfffl7sTkWokWcyKn
-31ztuPdTN18qYRzK07M8W51An5rNhqMye1YZk7rdB/NcZneVRbwZlyiQz3AXI5P6
-JII9KnTyCEiJQ2KsKwCHq8JTWA6n45/SsZG+fIsDfGJFuDm+mg0qOHUSpL2ovhrJ
-xqu3MuzpI4sE52wAkCJEEBm9+nCptUoAoCFrAe8MdmLTuDfMupbgEO/1MJJTGOsM
-cR4fY+s+yK77GDJ6HMdi5/R99kTWcKAeckfrMp+wlSbcnDoL/zDFH0C/nL5rDSas
-PkmyGI1WM8QEP7HgsWM9s59Bo5uMeE+FGNXRoJFuMGUbNssWETGM0GDstY35EyRL
-bCpGHZZsQxHZ17KxA7/PGKFsg6zn/huLZI4SZZwk4m4uLz4kb69bkYVPxhku5ctV
-lAxzKzVMV7w9QiyJQPp2HlhaXJnrc9mzH+1DQHWz5dnD+ge5w75gEMKGCn/ET35z
-NeokrbhVyjvdM4k+VPM5rGsg56ABYoU4e6wiwxlXidc91kWFnCdyfirAW/hcLzjS
-+cpUwuxG3UNmsxwUOAsdSYZlhh0szBIHWSLhwYezR7PfGmZrQlQe43Kgcj1GObej
-sVyAIbIC2EJJsL3GHWIt9Q==
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="microsoft_key" translatable="false" tools:keep="@string/microsoft_key">"secret"</string>
+    <string name="github_key" translatable="false" tools:keep="@string/github_key">"secret"</string>
+</resources>

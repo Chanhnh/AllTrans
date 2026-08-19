@@ -1,0 +1,58 @@
+name: Android CI Build Test
+
+on:
+  push:
+    branches: ["dev"]
+  pull_request:
+    branches: ["dev"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    env:
+      SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+      RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+      RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+      RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Decode Keystore
+        if: env.SIGNING_KEY != ''
+        run: echo "$SIGNING_KEY" | base64 -d > app/android_sign_key.jks
+
+      - name: Build with Gradle
+        run: |
+          ./gradlew assembleDebug assembleRelease \
+          -PRELEASE_STORE_PASSWORD="$RELEASE_STORE_PASSWORD" \
+          -PRELEASE_KEY_ALIAS="$RELEASE_KEY_ALIAS" \
+          -PRELEASE_KEY_PASSWORD="$RELEASE_KEY_PASSWORD"
+
+      - name: Upload Debug APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alltrans-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+
+      - name: Upload Release APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alltrans-release-apk
+          path: app/build/outputs/apk/release/*.apk

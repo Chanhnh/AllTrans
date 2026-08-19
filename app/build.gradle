@@ -1,93 +1,111 @@
-/*
- * Copyright 2017 Akhil Kedia
- * This file is part of AllTrans.
- *
- * AllTrans is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * AllTrans is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with AllTrans. If not, see <http://www.gnu.org/licenses/>.
- *
- */
+// app/build.gradle
 
-
-
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    // Se você usa Firebase ou outros serviços que requerem plugins, adicione-os aqui. Por exemplo:
+    // id 'com.google.gms.google-services'
+    // id 'com.google.firebase.crashlytics'
+}
 
 android {
     signingConfigs {
         publish {
-            storeFile file(RELEASE_STORE_FILE)
-            storePassword RELEASE_STORE_PASSWORD
-            keyAlias RELEASE_KEY_ALIAS
-            keyPassword RELEASE_KEY_PASSWORD
+            // Recomenda-se ler propriedades do gradle.properties para segurança
+            storeFile file(project.property("RELEASE_STORE_FILE"))
+            storePassword project.property("RELEASE_STORE_PASSWORD")
+            keyAlias project.property("RELEASE_KEY_ALIAS")
+            keyPassword project.property("RELEASE_KEY_PASSWORD")
         }
     }
-    compileSdk 33
-//    buildToolsVersion '32.0.0'
+    compileSdk = 36
+    namespace 'chanhnh.alltrans'
 
     defaultConfig {
-        applicationId "akhil.alltrans"
-        minSdkVersion 19
-        //noinspection ExpiredTargetSdkVersion
-        targetSdkVersion 30
-        versionCode 196
-        versionName "1.9.6"
+        applicationId "chanhnh.alltrans"
+        minSdk = 29
+        targetSdk = 36
+        versionCode 200
+        versionName "2.0.0"
         multiDexEnabled true
-        signingConfig signingConfigs.publish
     }
+
     buildTypes {
         debug {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.publish
         }
     }
-    namespace 'akhil.alltrans'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "AllTrans-v${variant.versionName}-${variant.buildType.name}.apk"
+        }
+    }
 }
 
-repositories {
-    google()
-    mavenCentral()
-//    maven { url "https://jitpack.io" }
+kotlin {
+    jvmToolchain(17)
+
+    compilerOptions {
+        freeCompilerArgs.addAll(
+                "-opt-in=kotlin.RequiresOptIn",
+                "-Xjvm-default=all"
+        )
+    }
 }
 
 dependencies {
-    compileOnly 'de.robv.android.xposed:api:82:sources'
+    // Use a versão do Kotlin definida no build.gradle do projeto
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.core:core-ktx:1.17.0'
+
+    // Xposed
     compileOnly 'de.robv.android.xposed:api:82'
 
-    implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    // Networking & JSON
+    implementation 'com.google.code.gson:gson:2.13.1'
+    implementation 'com.squareup.okhttp3:okhttp:5.1.0'
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.preference:preference:1.2.1'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.percentlayout:percentlayout:1.0.0'
-
-    implementation 'com.google.firebase:firebase-analytics:21.3.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.4.0'
-    implementation 'com.google.mlkit:translate:17.0.1'
-    implementation 'com.android.support:multidex:1.0.3'
-
-    implementation 'com.codemybrainsout.rating:ratingdialog:1.0.8'
+    // AndroidX Libraries
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'androidx.fragment:fragment-ktx:1.8.9'
+    implementation 'androidx.activity:activity-ktx:1.10.1'
 
 
+    // Lifecycle & Coroutines
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.9.3'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2'
 }
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
 
-
+// Suas tasks customizadas
 afterEvaluate {
     installDebug.doLast {
 //        updateVirtualXposedAPP.exec()
@@ -97,20 +115,20 @@ afterEvaluate {
     }
 }
 
-task updateVirtualXposedAPP(type: Exec) {
+tasks.register('updateVirtualXposedAPP', Exec) {
     def pkg = android.defaultConfig.applicationId
     commandLine android.adbExecutable, 'shell', 'am', 'broadcast', '-a', 'io.va.exposed.CMD', '-e', 'cmd', 'update', '-e', 'pkg', pkg
 }
 
-task clearLog(type: Exec) {
+tasks.register('clearLog', Exec) {
     commandLine android.adbExecutable, 'logcat', '-c'
 }
 
-task rebootVirtualXposedAPP(type: Exec) {
+tasks.register('rebootVirtualXposedAPP', Exec) {
     commandLine android.adbExecutable, 'shell', 'am', 'broadcast', '-a', 'io.va.exposed.CMD', '-e', 'cmd', 'reboot'
 }
 
-task launchVirtualXposedAPP(type: Exec) {
-    def pkg = "com.megabox.mop" // for example: com.tencent.mm
+tasks.register('launchVirtualXposedAPP', Exec) {
+    def pkg = "com.megabox.mop"
     commandLine android.adbExecutable, 'shell', 'am', 'broadcast', '-a', 'io.va.exposed.CMD', '-e', 'cmd', 'launch', '-e', 'pkg', pkg
 }

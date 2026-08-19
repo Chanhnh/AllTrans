@@ -31,6 +31,7 @@
         android:forceQueryable="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
@@ -59,13 +60,23 @@
             </intent-filter>
         </activity>
         <provider
-            android:authorities="akhil.alltrans.sharedPrefProvider"
-            android:name="akhil.alltrans.sharedPrefProvider"
+            android:authorities="chanhnh.alltrans.SharedPrefProvider"
+            android:name="chanhnh.alltrans.SharedPrefProvider"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
         <provider
-            android:authorities="akhil.alltrans.gtransProvider"
-            android:name="akhil.alltrans.gtransProvider"
+            android:authorities="chanhnh.alltrans.GtransProvider"
+            android:name="chanhnh.alltrans.GtransProvider"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+        <provider
+            android:authorities="chanhnh.alltrans.EdgeProvider"
+            android:name="chanhnh.alltrans.EdgeProvider"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+        <provider
+            android:authorities="chanhnh.alltrans.VietPhraseProvider"
+            android:name="chanhnh.alltrans.VietPhraseProvider"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
     </application>

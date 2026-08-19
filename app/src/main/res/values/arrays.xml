@@ -24,19 +24,32 @@
         <item>com.android.providers.settings</item>
     </string-array>
 
+    <string-array name="translator_provider_entries">
+        <item>Google Translate</item>
+        <item>Microsoft Translate</item>
+        <item>VietPhrase</item>
+    </string-array>
+
+    <string-array name="translator_provider_values">
+        <item>g</item>
+        <item>edge</item>
+        <item>vietphrase</item>
+    </string-array>
+
     <string-array name="translatorProviderCodes" translatable="false">
         <item>g</item>
-        <item>m</item>
-        <item>y</item>
+        <item>edge</item>
+        <item>vietphrase</item>
     </string-array>
 
     <string-array name="translatorProviderNames" translatable="false">
         <item>@string/translator_provider_google</item>
         <item>@string/translator_provider_microsoft</item>
-        <item>@string/translator_provider_yandex</item>
+        <item>@string/translator_provider_vietphrase</item>
     </string-array>
 
     <string-array name="languageCodesGoogle" translatable="false">
+        <item>auto</item> <!-- Adicionado -->
         <item>af</item>
         <item>ar</item>
         <item>be</item>
@@ -99,6 +112,7 @@
     </string-array>
 
     <string-array name="languageNamesGoogle" translatable="false">
+        <item>@string/Automatic_google</item> <!-- Adicionado -->
         <item>@string/Afrikaans_google</item>
         <item>@string/Arabic_google</item>
         <item>@string/Belarusian_google</item>
@@ -163,335 +177,190 @@
     <string-array name="languageCodes" translatable="false">
         <item>auto</item>
         <item>af</item>
+        <item>sq</item>
         <item>ar</item>
-        <item>bg</item>
+        <item>hy</item>
+        <item>az</item>
+        <item>eu</item>
+        <item>be</item>
         <item>bn</item>
         <item>bs</item>
+        <item>bg</item>
         <item>ca</item>
+        <item>zh-Hans</item>
+        <item>zh-Hant</item>
+        <item>hr</item>
         <item>cs</item>
-        <item>cy</item>
         <item>da</item>
+        <item>nl</item>
+        <item>en</item>
+        <item>et</item>
+        <item>fj</item>
+        <item>fil</item>
+        <item>fi</item>
+        <item>fr</item>
+        <item>ka</item>
         <item>de</item>
         <item>el</item>
-        <item>en</item>
-        <item>es</item>
-        <item>et</item>
-        <item>fa</item>
-        <item>fi</item>
-        <item>fil</item>
-        <item>fj</item>
-        <item>fr</item>
-        <item>ga</item>
+        <item>gu</item>
+        <item>ht</item>
         <item>he</item>
         <item>hi</item>
-        <item>hr</item>
-        <item>ht</item>
         <item>hu</item>
-        <item>id</item>
         <item>is</item>
+        <item>id</item>
+        <item>ga</item>
         <item>it</item>
         <item>ja</item>
         <item>kn</item>
+        <item>kk</item>
         <item>ko</item>
-        <item>lt</item>
         <item>lv</item>
-        <item>mg</item>
-        <item>mi</item>
-        <item>ml</item>
+        <item>lt</item>
+        <item>mk</item>
         <item>ms</item>
+        <item>ml</item>
         <item>mt</item>
-        <item>mww</item>
+        <item>mi</item>
+        <item>mr</item>
+        <item>mn</item>
+        <item>ne</item>
         <item>nb</item>
-        <item>nl</item>
-        <item>otq</item>
-        <item>pa</item>
+        <item>fa</item>
         <item>pl</item>
         <item>pt</item>
-        <item>pt-pt</item>
+        <item>pa</item>
         <item>ro</item>
         <item>ru</item>
-        <item>sk</item>
-        <item>sl</item>
         <item>sm</item>
         <item>sr-Cyrl</item>
         <item>sr-Latn</item>
-        <item>sv</item>
+        <item>sk</item>
+        <item>sl</item>
+        <item>es</item>
         <item>sw</item>
+        <item>sv</item>
         <item>ta</item>
         <item>te</item>
         <item>th</item>
+        <item>tr</item>
+        <item>uk</item>
+        <item>ur</item>
+        <item>uz</item>
+        <item>vi</item>
+        <item>cy</item>
+        <item>yua</item>
+        <item>zu</item>
+        <item>mg</item>
+        <item>mww</item>
+        <item>otq</item>
+        <item>pt-pt</item>
         <item>tlh-Latn</item>
         <item>tlh-Piqd</item>
         <item>to</item>
-        <item>tr</item>
         <item>ty</item>
-        <item>uk</item>
-        <item>ur</item>
-        <item>vi</item>
-        <item>yua</item>
         <item>yue</item>
-        <item>zh-Hans</item>
-        <item>zh-Hant</item>
     </string-array>
 
     <string-array name="languageNames" translatable="false">
         <item>@string/Auto_detect_micro</item>
         <item>@string/Afrikaans_micro</item>
+        <item>@string/Albanian_google</item>
         <item>@string/Arabic_micro</item>
-        <item>@string/Bulgarian_micro</item>
+        <item>Armenian</item>
+        <item>Azerbaijani</item>
+        <item>Basque</item>
+        <item>@string/Belarusian_google</item>
         <item>@string/Bangla_micro</item>
         <item>@string/Bosnian_micro</item>
+        <item>@string/Bulgarian_micro</item>
         <item>@string/Catalan_micro</item>
+        <item>@string/Chinese_Simplified_micro</item>
+        <item>@string/Chinese_Traditional_micro</item>
+        <item>@string/Croatian_micro</item>
         <item>@string/Czech_micro</item>
-        <item>@string/Welsh_micro</item>
         <item>@string/Danish_micro</item>
+        <item>@string/Dutch_micro</item>
+        <item>@string/English_micro</item>
+        <item>@string/Estonian_micro</item>
+        <item>@string/Fijian_micro</item>
+        <item>@string/Filipino_micro</item>
+        <item>@string/Finnish_micro</item>
+        <item>@string/French_micro</item>
+        <item>@string/Georgian_google</item>
         <item>@string/German_micro</item>
         <item>@string/Greek_micro</item>
-        <item>@string/English_micro</item>
-        <item>@string/Spanish_micro</item>
-        <item>@string/Estonian_micro</item>
-        <item>@string/Persian_micro</item>
-        <item>@string/Finnish_micro</item>
-        <item>@string/Filipino_micro</item>
-        <item>@string/Fijian_micro</item>
-        <item>@string/French_micro</item>
-        <item>@string/Irish_micro</item>
+        <item>@string/Gujarati_google</item>
+        <item>@string/Haitian_google</item>
         <item>@string/Hebrew_micro</item>
         <item>@string/Hindi_micro</item>
-        <item>@string/Croatian_micro</item>
-        <item>@string/Haitian_Creole_micro</item>
         <item>@string/Hungarian_micro</item>
-        <item>@string/Indonesian_micro</item>
         <item>@string/Icelandic_micro</item>
+        <item>@string/Indonesian_micro</item>
+        <item>@string/Irish_micro</item>
         <item>@string/Italian_micro</item>
         <item>@string/Japanese_micro</item>
         <item>@string/Kannada_micro</item>
+        <item>Kazakh</item>
         <item>@string/Korean_micro</item>
-        <item>@string/Lithuanian_micro</item>
         <item>@string/Latvian_micro</item>
-        <item>@string/Malagasy_micro</item>
-        <item>@string/Maori_micro</item>
-        <item>@string/Malayalam_micro</item>
+        <item>@string/Lithuanian_micro</item>
+        <item>@string/Macedonian_google</item>
         <item>@string/Malay_micro</item>
+        <item>@string/Malayalam_micro</item>
         <item>@string/Maltese_micro</item>
-        <item>@string/Hmong_Daw_micro</item>
+        <item>@string/Maori_micro</item>
+        <item>@string/Marathi_google</item>
+        <item>Mongolian</item>
+        <item>Nepali</item>
         <item>@string/Norwegian_micro</item>
-        <item>@string/Dutch_micro</item>
-        <item>@string/Querétaro_Otomi_micro</item>
-        <item>@string/Punjabi_micro</item>
+        <item>@string/Persian_micro</item>
         <item>@string/Polish_micro</item>
-        <item>@string/Portuguese_Brazil_micro</item>
-        <item>@string/Portuguese_Portugal_micro</item>
+        <item>@string/Portuguese_google</item>
+        <item>@string/Punjabi_micro</item>
         <item>@string/Romanian_micro</item>
         <item>@string/Russian_micro</item>
-        <item>@string/Slovak_micro</item>
-        <item>@string/Slovenian_micro</item>
         <item>@string/Samoan_micro</item>
         <item>@string/Serbian_Cyrillic_micro</item>
         <item>@string/Serbian_Latin_micro</item>
-        <item>@string/Swedish_micro</item>
+        <item>@string/Slovak_micro</item>
+        <item>@string/Slovenian_micro</item>
+        <item>@string/Spanish_micro</item>
         <item>@string/Swahili_micro</item>
+        <item>@string/Swedish_micro</item>
         <item>@string/Tamil_micro</item>
         <item>@string/Telugu_micro</item>
         <item>@string/Thai_micro</item>
+        <item>@string/Turkish_micro</item>
+        <item>@string/Ukrainian_micro</item>
+        <item>@string/Urdu_micro</item>
+        <item>@string/Uzbek_micro</item>
+        <item>@string/Vietnamese_micro</item>
+        <item>@string/Welsh_micro</item>
+        <item>@string/Yucatec_Maya_micro</item>
+        <item>Zulu</item>
+        <item>@string/Malagasy_micro</item>
+        <item>@string/Hmong_Daw_micro</item>
+        <item>@string/Querétaro_Otomi_micro</item>
+        <item>@string/Portuguese_Portugal_micro</item>
         <item>@string/Klingon_Latin_micro</item>
         <item>@string/Klingon_pIqaD_micro</item>
         <item>@string/Tongan_micro</item>
-        <item>@string/Turkish_micro</item>
         <item>@string/Tahitian_micro</item>
-        <item>@string/Ukrainian_micro</item>
-        <item>@string/Urdu_micro</item>
-        <item>@string/Vietnamese_micro</item>
-        <item>@string/Yucatec_Maya_micro</item>
         <item>@string/Cantonese_Traditional_micro</item>
-        <item>@string/Chinese_Simplified_micro</item>
-        <item>@string/Chinese_Traditional_micro</item>
     </string-array>
 
-    <string-array name="languageCodesYandex" translatable="false">
-        <item>af</item>
-        <item>am</item>
-        <item>ar</item>
-        <item>az</item>
-        <item>ba</item>
-        <item>be</item>
-        <item>bg</item>
-        <item>bn</item>
-        <item>bs</item>
-        <item>ca</item>
-        <item>ceb</item>
-        <item>cs</item>
-        <item>cy</item>
-        <item>da</item>
-        <item>de</item>
-        <item>el</item>
-        <item>en</item>
-        <item>eo</item>
-        <item>es</item>
-        <item>et</item>
-        <item>eu</item>
-        <item>fa</item>
-        <item>fi</item>
-        <item>fr</item>
-        <item>ga</item>
-        <item>gd</item>
-        <item>gl</item>
-        <item>gu</item>
-        <item>he</item>
-        <item>hi</item>
-        <item>hr</item>
-        <item>ht</item>
-        <item>hu</item>
-        <item>hy</item>
-        <item>id</item>
-        <item>is</item>
-        <item>it</item>
-        <item>ja</item>
-        <item>jv</item>
-        <item>ka</item>
-        <item>kk</item>
-        <item>kn</item>
-        <item>ko</item>
-        <item>ky</item>
-        <item>la</item>
-        <item>lb</item>
-        <item>lt</item>
-        <item>lv</item>
-        <item>mg</item>
-        <item>mhr</item>
-        <item>mi</item>
-        <item>mk</item>
-        <item>ml</item>
-        <item>mn</item>
-        <item>mr</item>
-        <item>mrj</item>
-        <item>ms</item>
-        <item>mt</item>
-        <item>ne</item>
-        <item>nl</item>
-        <item>no</item>
-        <item>pa</item>
-        <item>pap</item>
-        <item>pl</item>
-        <item>pt</item>
-        <item>ro</item>
-        <item>ru</item>
-        <item>si</item>
-        <item>sk</item>
-        <item>sl</item>
-        <item>sq</item>
-        <item>sr</item>
-        <item>su</item>
-        <item>sv</item>
-        <item>sw</item>
-        <item>ta</item>
-        <item>te</item>
-        <item>tg</item>
-        <item>th</item>
-        <item>tl</item>
-        <item>tr</item>
-        <item>tt</item>
-        <item>udm</item>
-        <item>uk</item>
-        <item>ur</item>
-        <item>uz</item>
-        <item>vi</item>
-        <item>xh</item>
-        <item>yi</item>
-        <item>zh</item>
+    <!-- Entries for Microsoft Batch Translation Mode ListPreference -->
+    <string-array name="ms_batch_mode_entries">
+        <item>Use global setting</item>
+        <item>Force Enable</item>
+        <item>Force Disable</item>
     </string-array>
 
-    <string-array name="languageNamesYandex" translatable="false">
-        <item>@string/Afrikaans_yandex</item>
-        <item>@string/Amharic_yandex</item>
-        <item>@string/Arabic_yandex</item>
-        <item>@string/Azerbaijani_yandex</item>
-        <item>@string/Bashkir_yandex</item>
-        <item>@string/Belarusian_yandex</item>
-        <item>@string/Bulgarian_yandex</item>
-        <item>@string/Bengali_yandex</item>
-        <item>@string/Bosnian_yandex</item>
-        <item>@string/Catalan_yandex</item>
-        <item>@string/Cebuano_yandex</item>
-        <item>@string/Czech_yandex</item>
-        <item>@string/Welsh_yandex</item>
-        <item>@string/Danish_yandex</item>
-        <item>@string/German_yandex</item>
-        <item>@string/Greek_yandex</item>
-        <item>@string/English_yandex</item>
-        <item>@string/Esperanto_yandex</item>
-        <item>@string/Spanish_yandex</item>
-        <item>@string/Estonian_yandex</item>
-        <item>@string/Basque_yandex</item>
-        <item>@string/Persian_yandex</item>
-        <item>@string/Finnish_yandex</item>
-        <item>@string/French_yandex</item>
-        <item>@string/Irish_yandex</item>
-        <item>@string/Scottish_Gaelic_yandex</item>
-        <item>@string/Galician_yandex</item>
-        <item>@string/Gujarati_yandex</item>
-        <item>@string/Hebrew_yandex</item>
-        <item>@string/Hindi_yandex</item>
-        <item>@string/Croatian_yandex</item>
-        <item>@string/Haitian_yandex</item>
-        <item>@string/Hungarian_yandex</item>
-        <item>@string/Armenian_yandex</item>
-        <item>@string/Indonesian_yandex</item>
-        <item>@string/Icelandic_yandex</item>
-        <item>@string/Italian_yandex</item>
-        <item>@string/Japanese_yandex</item>
-        <item>@string/Javanese_yandex</item>
-        <item>@string/Georgian_yandex</item>
-        <item>@string/Kazakh_yandex</item>
-        <item>@string/Kannada_yandex</item>
-        <item>@string/Korean_yandex</item>
-        <item>@string/Kyrgyz_yandex</item>
-        <item>@string/Latin_yandex</item>
-        <item>@string/Luxembourgish_yandex</item>
-        <item>@string/Lithuanian_yandex</item>
-        <item>@string/Latvian_yandex</item>
-        <item>@string/Malagasy_yandex</item>
-        <item>@string/Mari_yandex</item>
-        <item>@string/Maori_yandex</item>
-        <item>@string/Macedonian_yandex</item>
-        <item>@string/Malayalam_yandex</item>
-        <item>@string/Mongolian_yandex</item>
-        <item>@string/Marathi_yandex</item>
-        <item>@string/Hill_Mari_yandex</item>
-        <item>@string/Malay_yandex</item>
-        <item>@string/Maltese_yandex</item>
-        <item>@string/Nepali_yandex</item>
-        <item>@string/Dutch_yandex</item>
-        <item>@string/Norwegian_yandex</item>
-        <item>@string/Punjabi_yandex</item>
-        <item>@string/Papiamento_yandex</item>
-        <item>@string/Polish_yandex</item>
-        <item>@string/Portuguese_yandex</item>
-        <item>@string/Romanian_yandex</item>
-        <item>@string/Russian_yandex</item>
-        <item>@string/Sinhalese_yandex</item>
-        <item>@string/Slovak_yandex</item>
-        <item>@string/Slovenian_yandex</item>
-        <item>@string/Albanian_yandex</item>
-        <item>@string/Serbian_yandex</item>
-        <item>@string/Sundanese_yandex</item>
-        <item>@string/Swedish_yandex</item>
-        <item>@string/Swahili_yandex</item>
-        <item>@string/Tamil_yandex</item>
-        <item>@string/Telugu_yandex</item>
-        <item>@string/Tajik_yandex</item>
-        <item>@string/Thai_yandex</item>
-        <item>@string/Tagalog_yandex</item>
-        <item>@string/Turkish_yandex</item>
-        <item>@string/Tatar_yandex</item>
-        <item>@string/Udmurt_yandex</item>
-        <item>@string/Ukrainian_yandex</item>
-        <item>@string/Urdu_yandex</item>
-        <item>@string/Uzbek_yandex</item>
-        <item>@string/Vietnamese_yandex</item>
-        <item>@string/Xhosa_yandex</item>
-        <item>@string/Yiddish_yandex</item>
-        <item>@string/Chinese_yandex</item>
+    <!-- EntryValues for Microsoft Batch Translation Mode ListPreference -->
+    <string-array name="ms_batch_mode_entry_values">
+        <item>global</item>
+        <item>enabled</item>
+        <item>disabled</item>
     </string-array>
-
 </resources>

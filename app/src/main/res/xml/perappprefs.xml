@@ -1,139 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright 2017 Akhil Kedia
-  ~ This file is part of AllTrans.
-  ~
-  ~ AllTrans is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ AllTrans is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with AllTrans. If not, see <http://www.gnu.org/licenses/>.
-  ~
-  -->
-
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <SwitchPreference
-        app:iconSpaceReserved="false"
-        android:defaultValue="false"
-        android:key="LocalEnabled"
-        android:summary="@string/local_on_off_summary"
-        android:summaryOff="@string/local_on_off_summary_off"
-        android:summaryOn="@string/local_on_off_summary_on"
-        android:title="@string/local_on_off" />
-    <SwitchPreference
-        app:iconSpaceReserved="false"
-        android:defaultValue="false"
-        android:key="OverRide"
-        android:summaryOff="@string/overRide_global_summary_off"
-        android:summaryOn="@string/overRide_global_summary_on"
-        android:title="@string/overRide_global" />
-    <SwitchPreference
-        app:iconSpaceReserved="false"
-        android:defaultValue="false"
-        android:key="ClearCache"
-        android:persistent="false"
-        android:summary="@string/clear_cache_summary"
-        android:summaryOff="@string/clear_cache_summary"
-        android:title="@string/clear_cache" />
 
-    <PreferenceCategory android:title="@string/pref_cat_translate_settings" app:iconSpaceReserved="false">
+    <SwitchPreference
+        app:iconSpaceReserved="false"
+        app:defaultValue="false"
+        app:key="LocalEnabled"
+        app:summary="@string/local_on_off_summary"
+        app:summaryOff="@string/local_on_off_summary_off"
+        app:summaryOn="@string/local_on_off_summary_on"
+        app:title="@string/local_on_off" />
+
+    <SwitchPreference
+        app:iconSpaceReserved="false"
+        app:defaultValue="false"
+        app:key="OverRide"
+        app:summaryOff="@string/overRide_global_summary_off"
+        app:summaryOn="@string/overRide_global_summary_on"
+        app:title="@string/overRide_global" />
+
+    <Preference
+        app:iconSpaceReserved="false"
+        app:key="ClearCache"
+        app:persistent="false"
+        app:summary="@string/clear_cache_summary"
+        app:title="@string/clear_cache"
+        android:layout="@layout/preference_material_item" />
+
+    <PreferenceCategory
+        app:title="@string/pref_cat_translate_settings"
+        app:iconSpaceReserved="false"
+        app:allowDividerAbove="true">
 
         <ListPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="ko"
-            android:entries="@array/languageNames"
-            android:entryValues="@array/languageCodes"
-            android:key="TranslateFromLanguage"
-            android:summary="@string/transFrom_summary"
-            android:title="@string/transFrom" />
+            app:key="TranslatorProvider"
+            app:title="@string/translator_provider"
+            app:summary="@string/translator_provider_summary"
+            app:entries="@array/translator_provider_entries"
+            app:entryValues="@array/translator_provider_values"
+            app:defaultValue="g"
+            app:useSimpleSummaryProvider="true"
+            android:layout="@layout/preference_material_item" />
+
         <ListPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="en"
-            android:entries="@array/languageNames"
-            android:entryValues="@array/languageCodes"
-            android:key="TranslateToLanguage"
-            android:summary="@string/transTo_summary"
-            android:title="@string/transTo" />
+            app:defaultValue="auto"
+            app:entries="@array/languageNamesGoogle"
+            app:entryValues="@array/languageCodesGoogle"
+            app:key="TranslateFromLanguage"
+            app:summary="@string/transFrom_summary"
+            app:title="@string/transFrom"
+            app:useSimpleSummaryProvider="true"
+            android:layout="@layout/preference_material_item" />
+
+        <ListPreference
+            app:iconSpaceReserved="false"
+            app:defaultValue="vi"
+            app:entries="@array/languageNamesGoogle"
+            app:entryValues="@array/languageCodesGoogle"
+            app:key="TranslateToLanguage"
+            app:summary="@string/transTo_summary"
+            app:title="@string/transTo"
+            app:useSimpleSummaryProvider="true"
+            android:layout="@layout/preference_material_item" />
 
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_cat_troubleshooting_info" app:iconSpaceReserved="false">
+
+    <PreferenceCategory
+        app:title="@string/pref_cat_troubleshooting_info"
+        app:iconSpaceReserved="false"
+        app:allowDividerAbove="true">
 
         <SwitchPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="false"
-            android:key="DrawText"
-            android:summaryOff="@string/drawText_summary_off"
-            android:summaryOn="@string/drawText_summary_on"
-            android:title="@string/drawText"/>
-        <SwitchPreference
-            app:iconSpaceReserved="false"
-            android:defaultValue="false"
-            android:key="Scroll"
-            android:summaryOff="@string/scroll_summary_off"
-            android:summaryOn="@string/scroll_summary_on"
-            android:title="@string/scroll" />
+            app:defaultValue="false"
+            app:key="Scroll"
+            app:summaryOff="@string/scroll_summary_off"
+            app:summaryOn="@string/scroll_summary_on"
+            app:title="@string/scroll" />
+
         <EditTextPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="@integer/default_delay"
-            android:key="Delay"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:summary="@string/delay_summary"
-            android:title="@string/delay" />
+            app:defaultValue="@integer/default_delay"
+            app:key="Delay"
+            app:summary="@string/delay_summary"
+            app:title="@string/delay"
+            app:useSimpleSummaryProvider="true"
+            android:inputType="number"
+            android:layout="@layout/preference_material_item" />
+
         <EditTextPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="@integer/default_delay_webview"
-            android:key="DelayWebView"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:summary="@string/delay_webview_summary"
-            android:title="@string/delay_webview" />
+            app:defaultValue="@integer/default_delay_webview"
+            app:key="DelayWebView"
+            app:summary="@string/delay_webview_summary"
+            app:title="@string/delay_webview"
+            app:useSimpleSummaryProvider="true"
+            android:inputType="number"
+            android:layout="@layout/preference_material_item" />
 
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_cat_advanced_settings" app:iconSpaceReserved="false">
+
+    <PreferenceCategory
+        app:title="@string/pref_cat_advanced_settings"
+        app:iconSpaceReserved="false"
+        app:allowDividerAbove="true">
 
         <SwitchPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="true"
-            android:key="SetText"
-            android:summaryOff="@string/setText_summary_off"
-            android:summaryOn="@string/setText_summary_on"
-            android:title="@string/setText" />
+            app:defaultValue="true"
+            app:key="SetText"
+            app:summaryOff="@string/setText_summary_off"
+            app:summaryOn="@string/setText_summary_on"
+            app:title="@string/setText" />
+
         <SwitchPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="true"
-            android:key="SetHint"
-            android:summaryOff="@string/setHint_summary_off"
-            android:summaryOn="@string/setHint_summary_on"
-            android:title="@string/setHint" />
+            app:defaultValue="true"
+            app:key="SetHint"
+            app:summaryOff="@string/setHint_summary_off"
+            app:summaryOn="@string/setHint_summary_on"
+            app:title="@string/setHint" />
+
         <SwitchPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="true"
-            android:key="LoadURL"
-            android:summaryOff="@string/webView_summary_off"
-            android:summaryOn="@string/webView_summary_on"
-            android:title="@string/webView" />
+            app:defaultValue="true"
+            app:key="ExtendedViewTranslation"
+            app:summaryOff="@string/extended_view_translation_summary_off"
+            app:summaryOn="@string/extended_view_translation_summary_on"
+            app:title="@string/extended_view_translation" />
+
         <SwitchPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="true"
-            android:key="Cache"
-            android:summaryOff="@string/caching_summary_off"
-            android:summaryOn="@string/caching_summary_on"
-            android:title="@string/caching" />
+            app:defaultValue="true"
+            app:key="LoadURL"
+            app:summaryOff="@string/webView_summary_off"
+            app:summaryOn="@string/webView_summary_on"
+            app:title="@string/webView" />
+
         <SwitchPreference
             app:iconSpaceReserved="false"
-            android:defaultValue="true"
-            android:key="Notif"
-            android:summaryOff="@string/notif_summary_off"
-            android:summaryOn="@string/notif_summary_on"
-            android:title="@string/notif" />
+            app:defaultValue="true"
+            app:key="Cache"
+            app:summaryOff="@string/caching_summary_off"
+            app:summaryOn="@string/caching_summary_on"
+            app:title="@string/caching" />
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            app:defaultValue="true"
+            app:key="Notif"
+            app:summaryOff="@string/notif_summary_off"
+            app:summaryOn="@string/notif_summary_on"
+            app:title="@string/notif" />
+
     </PreferenceCategory>
+
 </PreferenceScreen>

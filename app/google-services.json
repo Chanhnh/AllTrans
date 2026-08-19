@@ -1,16 +1,16 @@
 {
   "project_info": {
     "project_number": "825103961890",
-    "firebase_url": "https://alltrans-b644e.firebaseio.com",
-    "project_id": "alltrans-b644e",
-    "storage_bucket": "alltrans-b644e.appspot.com"
+    "firebase_url": "https://rlltrans-b644e.firebaseio.com",
+    "project_id": "Arlltrans-b644e",
+    "storage_bucket": "flltrans-b644e.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:825103961890:android:77b0d4ba94b4ecff",
+        "mobilesdk_app_id": "1:8251503961890:android:77b0d4ba94b4ecff",
         "android_client_info": {
-          "package_name": "akhil.alltrans"
+          "package_name": "chanhnh.alltrans"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "825103961890-adsb84b1daipftv48jliru40id1rshgd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "akhil.alltrans",
+            "package_name": "chanhnh.alltrans",
             "certificate_hash": "f098530c99b05af64cf145c91f9a5a721cbfcbb6"
           }
         },

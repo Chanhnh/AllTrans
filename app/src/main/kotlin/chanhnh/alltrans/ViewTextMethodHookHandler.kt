@@ -2,13 +2,10 @@ package chanhnh.alltrans
 
 import android.content.Context
 import android.text.Editable
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Method
 import java.nio.CharBuffer
 
-class ViewTextMethodHookHandler : XC_MethodHook(), OriginalCallable {
+class ViewTextMethodHookHandler : SafeHook(), OriginalCallable {
 
     companion object {
         private const val TAG = "AllTrans:ViewTextMethod"
@@ -24,12 +21,13 @@ class ViewTextMethodHookHandler : XC_MethodHook(), OriginalCallable {
     )
 
     @Throws(Throwable::class)
-    override fun beforeHookedMethod(param: MethodHookParam) {
+    override fun beforeHookedMethod(param: HookParam) {
         val method = param.method as? Method ?: return
+        val target = param.thisObject ?: return
         if (param.args.isEmpty() || param.args[0] !is CharSequence) return
 
-        if (isApplyingTranslated(param.thisObject)) {
-            setApplyingTranslated(param.thisObject, false)
+        if (isApplyingTranslated(target)) {
+            setApplyingTranslated(target, false)
             return
         }
 
@@ -38,7 +36,7 @@ class ViewTextMethodHookHandler : XC_MethodHook(), OriginalCallable {
         if (!SetTextHookHandler.isNotWhiteSpace(originalText) || originalCs is Editable) return
 
         val context = try {
-            XposedHelpers.callMethod(param.thisObject, "getContext") as? Context
+            Reflect.callMethod(target, "getContext") as? Context
         } catch (_: Throwable) {
             null
         } ?: Alltrans.context ?: return
@@ -61,7 +59,7 @@ class ViewTextMethodHookHandler : XC_MethodHook(), OriginalCallable {
             return
         }
 
-        val compositeKey = createCompositeKey(param.thisObject, method.name, originalText)
+        val compositeKey = createCompositeKey(target, method.name, originalText)
         synchronized(Alltrans.pendingTextViewTranslations) {
             if (Alltrans.pendingTextViewTranslations.contains(compositeKey)) return
             Alltrans.pendingTextViewTranslations.add(compositeKey)
@@ -69,7 +67,7 @@ class ViewTextMethodHookHandler : XC_MethodHook(), OriginalCallable {
 
         val callbackData = ViewMethodCall(
             method = method,
-            target = param.thisObject,
+            target = target,
             originalArgs = param.args.copyOf(),
             argType = method.parameterTypes[0],
             originalText = originalText
@@ -94,7 +92,7 @@ class ViewTextMethodHookHandler : XC_MethodHook(), OriginalCallable {
             val updatedArgs = call.originalArgs.copyOf()
             updatedArgs[0] = adaptArgumentType(translated, call.argType)
             setApplyingTranslated(call.target, true)
-            XposedBridge.invokeOriginalMethod(call.method, call.target, updatedArgs)
+            HookRuntime.invokeOriginal(call.method, call.target, updatedArgs)
         } catch (t: Throwable) {
             Utils.debugLog("$TAG: Failed to invoke ${call.method.name} for ${call.target.javaClass.name}: ${t.message}")
         } finally {
@@ -116,7 +114,7 @@ class ViewTextMethodHookHandler : XC_MethodHook(), OriginalCallable {
 
     private fun isApplyingTranslated(target: Any): Boolean {
         return try {
-            XposedHelpers.getAdditionalInstanceField(target, FIELD_APPLYING_TRANSLATED) as? Boolean ?: false
+            HookRuntime.getAdditionalInstanceField(target, FIELD_APPLYING_TRANSLATED) as? Boolean ?: false
         } catch (_: Throwable) {
             false
         }
@@ -124,7 +122,7 @@ class ViewTextMethodHookHandler : XC_MethodHook(), OriginalCallable {
 
     private fun setApplyingTranslated(target: Any, value: Boolean) {
         try {
-            XposedHelpers.setAdditionalInstanceField(target, FIELD_APPLYING_TRANSLATED, value)
+            HookRuntime.setAdditionalInstanceField(target, FIELD_APPLYING_TRANSLATED, value)
         } catch (_: Throwable) {
         }
     }

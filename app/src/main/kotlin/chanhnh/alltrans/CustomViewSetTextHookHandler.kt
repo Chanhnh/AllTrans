@@ -5,16 +5,13 @@ import android.text.Editable
 import android.view.View
 import android.widget.TextView
 import dalvik.system.DexFile
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.nio.CharBuffer
 import java.util.Enumeration
 import java.util.concurrent.ConcurrentHashMap
 
-class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
+class CustomViewSetTextHookHandler : SafeHook(), OriginalCallable {
 
     companion object {
         private const val TAG = "AllTrans:CustomSetText"
@@ -79,7 +76,7 @@ class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
                             if (!hookedSignatures.add(signature)) return@forEach
 
                             try {
-                                XposedBridge.hookMethod(method, hook)
+                                HookRuntime.hook(method, hook)
                                 hookedCount++
                             } catch (_: Throwable) {
                             }
@@ -101,7 +98,7 @@ class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
                 className.startsWith("java.") ||
                 className.startsWith("javax.") ||
                 className.startsWith("kotlin.") ||
-                className.startsWith("de.robv.android.xposed.") ||
+                className.startsWith("io.github.libxposed.") ||
                 className.startsWith("chanhnh.alltrans.")
         }
 
@@ -125,13 +122,14 @@ class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
     )
 
     @Throws(Throwable::class)
-    override fun beforeHookedMethod(param: MethodHookParam) {
+    override fun beforeHookedMethod(param: HookParam) {
         val hookedMethod = param.method as? Method ?: return
+        val target = param.thisObject ?: return
         if (param.args.isEmpty() || param.args[0] !is CharSequence) return
-        if (param.thisObject is TextView) return
+        if (target is TextView) return
 
-        if (isApplyingTranslated(param.thisObject)) {
-            setApplyingTranslated(param.thisObject, false)
+        if (isApplyingTranslated(target)) {
+            setApplyingTranslated(target, false)
             return
         }
 
@@ -141,7 +139,7 @@ class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
         if (originalCs is Editable) return
 
         val context = try {
-            XposedHelpers.callMethod(param.thisObject, "getContext") as? Context
+            Reflect.callMethod(target, "getContext") as? Context
         } catch (_: Throwable) {
             null
         } ?: Alltrans.context ?: return
@@ -155,7 +153,7 @@ class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
         }
 
         try {
-            val isEditable = XposedHelpers.callMethod(param.thisObject, "isEditable") as? Boolean ?: false
+            val isEditable = Reflect.callMethod(target, "isEditable") as? Boolean ?: false
             if (isEditable) return
         } catch (_: Throwable) {
         }
@@ -172,12 +170,12 @@ class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
             return
         }
 
-        val compositeKey = createCompositeKey(param.thisObject, originalText)
+        val compositeKey = createCompositeKey(target, originalText)
         if (!addPending(compositeKey)) return
 
         val callbackData = CustomSetTextCall(
             method = hookedMethod,
-            target = param.thisObject,
+            target = target,
             originalArgs = param.args.copyOf(),
             argType = hookedMethod.parameterTypes[0],
             originalText = originalText
@@ -204,7 +202,7 @@ class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
             val updatedArgs = call.originalArgs.copyOf()
             updatedArgs[0] = adaptArgumentType(translated, call.argType)
             setApplyingTranslated(call.target, true)
-            XposedBridge.invokeOriginalMethod(call.method, call.target, updatedArgs)
+            HookRuntime.invokeOriginal(call.method, call.target, updatedArgs)
         } catch (t: Throwable) {
             Utils.debugLog("$TAG: Failed to invoke translated ${call.method.name} for ${call.target.javaClass.name}: ${t.message}")
         } finally {
@@ -264,7 +262,7 @@ class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
 
     private fun isApplyingTranslated(target: Any): Boolean {
         return try {
-            XposedHelpers.getAdditionalInstanceField(target, FIELD_APPLYING_TRANSLATED) as? Boolean ?: false
+            HookRuntime.getAdditionalInstanceField(target, FIELD_APPLYING_TRANSLATED) as? Boolean ?: false
         } catch (_: Throwable) {
             false
         }
@@ -272,7 +270,7 @@ class CustomViewSetTextHookHandler : XC_MethodHook(), OriginalCallable {
 
     private fun setApplyingTranslated(target: Any, value: Boolean) {
         try {
-            XposedHelpers.setAdditionalInstanceField(target, FIELD_APPLYING_TRANSLATED, value)
+            HookRuntime.setAdditionalInstanceField(target, FIELD_APPLYING_TRANSLATED, value)
         } catch (_: Throwable) {
         }
     }

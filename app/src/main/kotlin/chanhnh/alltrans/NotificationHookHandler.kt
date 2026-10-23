@@ -7,14 +7,11 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
 import androidx.annotation.RequiresApi
-import de.robv.android.xposed.XC_MethodHook.MethodHookParam
-import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XposedBridge
 import java.lang.reflect.Method
 import java.util.Arrays
 import java.util.Objects
 
-class NotificationHookHandler : XC_MethodReplacement(), OriginalCallable {
+class NotificationHookHandler : SafeReplacementHook(), OriginalCallable {
     override fun callOriginalMethod(translatedString: CharSequence?, userData: Any?) {
         val notificationHookUserData = userData as NotificationHookUserData
         val methodHookParam = notificationHookUserData.methodHookParam
@@ -32,7 +29,7 @@ class NotificationHookHandler : XC_MethodReplacement(), OriginalCallable {
                 "In Thread " + Thread.currentThread()
                     .getId() + " Invoking original function " + methodHookParam.method.getName()
             )
-            XposedBridge.invokeOriginalMethod(myMethod, methodHookParam.thisObject, myArgs)
+            HookRuntime.invokeOriginal(myMethod, methodHookParam.thisObject, myArgs)
         } catch (e: Throwable) {
             Log.e(
                 "AllTrans",
@@ -280,11 +277,12 @@ class NotificationHookHandler : XC_MethodReplacement(), OriginalCallable {
     }
 
     @Throws(Throwable::class)
-    override fun replaceHookedMethod(methodHookParam: MethodHookParam): Any? {
+    override fun replaceHookedMethod(methodHookParam: HookParam): Any? {
         // Verificar se o AllTrans está habilitado antes de processar
         val context = try {
             // Tentar obter contexto do NotificationManager
             val notificationManagerInstance = methodHookParam.thisObject
+                ?: throw IllegalStateException("NotificationManager instance is null")
             val contextField = notificationManagerInstance.javaClass.getDeclaredField("mContext")
             contextField.isAccessible = true
             contextField.get(notificationManagerInstance) as? android.content.Context
@@ -300,7 +298,7 @@ class NotificationHookHandler : XC_MethodReplacement(), OriginalCallable {
             return try {
                 val method = methodHookParam.method as Method
                 method.isAccessible = true
-                XposedBridge.invokeOriginalMethod(method, methodHookParam.thisObject, methodHookParam.args)
+                HookRuntime.invokeOriginal(method, methodHookParam.thisObject, methodHookParam.args)
             } catch (e: Exception) {
                 Log.e("AllTrans", "Error calling original notification method", e)
                 null
@@ -429,6 +427,6 @@ class NotificationHookHandler : XC_MethodReplacement(), OriginalCallable {
 }
 
 internal class NotificationHookUserData(
-    val methodHookParam: MethodHookParam,
+    val methodHookParam: HookParam,
     val originalString: String?
 )

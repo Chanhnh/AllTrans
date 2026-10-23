@@ -2,46 +2,42 @@ package chanhnh.alltrans
 
 import android.text.Editable
 import android.text.Spanned
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 
-class StaticLayoutHookHandler : XC_MethodReplacement() {
+class StaticLayoutHookHandler : SafeReplacementHook() {
 
     companion object {
         private const val TAG = "AllTrans:StaticLayoutHook"
     }
 
-    override fun replaceHookedMethod(param: XC_MethodHook.MethodHookParam): Any? {
-        val builder = param.thisObject ?: return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args)
+    override fun replaceHookedMethod(param: HookParam): Any? {
+        val builder = param.thisObject ?: return HookRuntime.invokeOriginal(param.method, param.thisObject, param.args)
 
         try {
             val sourceText = readBuilderText(builder)
-                ?: return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args)
+                ?: return HookRuntime.invokeOriginal(param.method, param.thisObject, param.args)
 
             if (sourceText.isEmpty() || sourceText is Editable) {
-                return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args)
+                return HookRuntime.invokeOriginal(param.method, param.thisObject, param.args)
             }
 
             val range = readBuilderRange(builder, sourceText.length)
             if (range.first >= range.second) {
-                return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args)
+                return HookRuntime.invokeOriginal(param.method, param.thisObject, param.args)
             }
 
             val piece = sourceText.subSequence(range.first, range.second)
             if (piece.isEmpty() || piece is Editable) {
-                return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args)
+                return HookRuntime.invokeOriginal(param.method, param.thisObject, param.args)
             }
 
             val plainText = piece.toString()
             if (!SetTextHookHandler.isNotWhiteSpace(plainText)) {
-                return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args)
+                return HookRuntime.invokeOriginal(param.method, param.thisObject, param.args)
             }
             if (SetTextHookHandler.shouldSkipTranslation(plainText)) {
                 ViewTextCache.markNoTranslation(plainText)
                 cacheAsNoTranslation(plainText)
-                return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args)
+                return HookRuntime.invokeOriginal(param.method, param.thisObject, param.args)
             }
 
             val spanPayload = (piece as? Spanned)?.let { SpanTranslationHelper.createPayload(it) }
@@ -53,7 +49,7 @@ class StaticLayoutHookHandler : XC_MethodReplacement() {
 
             if (translated != null && translated.toString() != plainText) {
                 applyTranslatedText(builder, translated)
-                return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args)
+                return HookRuntime.invokeOriginal(param.method, param.thisObject, param.args)
             }
 
             requestPrefetch(spanPayload, plainText)
@@ -61,15 +57,15 @@ class StaticLayoutHookHandler : XC_MethodReplacement() {
             Utils.debugLog("$TAG: Failed to replace StaticLayout text: ${t.message}")
         }
 
-        return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args)
+        return HookRuntime.invokeOriginal(param.method, param.thisObject, param.args)
     }
 
     private fun readBuilderText(builder: Any): CharSequence? {
         return try {
-            XposedHelpers.getObjectField(builder, "mText") as? CharSequence
+            Reflect.getObjectField(builder, "mText") as? CharSequence
         } catch (_: Throwable) {
             try {
-                XposedHelpers.getObjectField(builder, "mSource") as? CharSequence
+                Reflect.getObjectField(builder, "mSource") as? CharSequence
             } catch (_: Throwable) {
                 null
             }
@@ -78,8 +74,8 @@ class StaticLayoutHookHandler : XC_MethodReplacement() {
 
     private fun readBuilderRange(builder: Any, textLength: Int): Pair<Int, Int> {
         return try {
-            val start = XposedHelpers.getIntField(builder, "mStart").coerceAtLeast(0)
-            val end = XposedHelpers.getIntField(builder, "mEnd").coerceAtMost(textLength)
+            val start = Reflect.getIntField(builder, "mStart").coerceAtLeast(0)
+            val end = Reflect.getIntField(builder, "mEnd").coerceAtMost(textLength)
             start to end
         } catch (_: Throwable) {
             0 to textLength
@@ -88,18 +84,18 @@ class StaticLayoutHookHandler : XC_MethodReplacement() {
 
     private fun applyTranslatedText(builder: Any, translated: CharSequence) {
         try {
-            XposedHelpers.setObjectField(builder, "mText", translated)
+            Reflect.setObjectField(builder, "mText", translated)
         } catch (_: Throwable) {
             try {
-                XposedHelpers.setObjectField(builder, "mSource", translated)
+                Reflect.setObjectField(builder, "mSource", translated)
             } catch (_: Throwable) {
                 return
             }
         }
 
         try {
-            XposedHelpers.setIntField(builder, "mStart", 0)
-            XposedHelpers.setIntField(builder, "mEnd", translated.length)
+            Reflect.setIntField(builder, "mStart", 0)
+            Reflect.setIntField(builder, "mEnd", translated.length)
         } catch (_: Throwable) {
         }
     }

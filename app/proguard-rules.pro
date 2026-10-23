@@ -1,35 +1,15 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in /home/akhil/android-sdk/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# AllTrans is built without R8/minification. These rules are kept so that a
+# future minified build still keeps the modern Xposed entry point discoverable.
 
-# Add any project specific keep options here:
+-dontwarn io.github.libxposed.annotation.**
+-adaptresourcefilecontents META-INF/xposed/java_init.list
+-keep,allowoptimization,allowobfuscation public class * extends io.github.libxposed.api.XposedModule {
+    public <init>();
+}
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Xposed Framework rules
--keep class de.robv.android.xposed.** { *; }
--keep interface de.robv.android.xposed.** { *; }
-
-# Keep AllTrans package and all its classes/members
-# This ensures that Xposed can find the entry point and reflection works
+# Keep AllTrans package and all its classes/members for reflection-based hooks.
 -keep class chanhnh.alltrans.** { *; }
 -keep interface chanhnh.alltrans.** { *; }
-
-# Also explicitly keep types that implement Xposed interfaces
--keep class * implements de.robv.android.xposed.IXposedMod { *; }
--keep class * implements de.robv.android.xposed.IXposedHookLoadPackage { *; }
--keep class * implements de.robv.android.xposed.IXposedHookZygoteInit { *; }
--keep class * implements de.robv.android.xposed.IXposedHookInitPackageResources { *; }
 
 # ML Kit rules
 -keep class com.google.mlkit.** { *; }

@@ -30,6 +30,7 @@
     <application
         android:forceQueryable="true"
         android:allowBackup="true"
+        android:description="@string/app_description"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
@@ -37,20 +38,8 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="r">
-        <meta-data
-            android:name="xposedmodule"
-            android:value="true" />
-        <meta-data
-            android:name="xposeddescription"
-            android:value="In-app translations anywhere" />
-        <meta-data
-            android:name="xposedminversion"
-            android:value="82" />
         <meta-data android:name="android.max_aspect"
             android:value="5.0"/>
-        <meta-data
-            android:name="xposedscope"
-            android:resource="@array/scopes" />
 
         <activity android:name=".MainActivity"
             android:exported="true">

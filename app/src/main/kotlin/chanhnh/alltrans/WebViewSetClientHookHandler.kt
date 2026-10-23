@@ -19,10 +19,9 @@
 package chanhnh.alltrans
 
 import android.webkit.WebViewClient
-import de.robv.android.xposed.XC_MethodHook
 
-class WebViewSetClientHookHandler : XC_MethodHook() {
-    override fun beforeHookedMethod(methodHookParam: MethodHookParam) {
+class WebViewSetClientHookHandler : SafeHook() {
+    override fun beforeHookedMethod(methodHookParam: HookParam) {
         Utils.debugLog("we are setting WebViewClient!")
         val ori = methodHookParam.args[0] as WebViewClient?
         methodHookParam.args[0] = WebViewClientWrapper(ori)

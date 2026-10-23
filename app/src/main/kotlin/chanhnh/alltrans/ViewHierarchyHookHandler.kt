@@ -4,10 +4,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
 
-class ViewHierarchyHookHandler : XC_MethodHook() {
+class ViewHierarchyHookHandler : SafeHook() {
 
     companion object {
         private const val TAG = "AllTrans:ViewHierarchyHook"
@@ -17,7 +15,7 @@ class ViewHierarchyHookHandler : XC_MethodHook() {
         private const val MAX_NODES = 3000
     }
 
-    override fun afterHookedMethod(param: MethodHookParam) {
+    override fun afterHookedMethod(param: HookParam) {
         val rootView = resolveRootView(param) ?: return
         val packageName = rootView.context?.packageName
 
@@ -32,7 +30,7 @@ class ViewHierarchyHookHandler : XC_MethodHook() {
         }
     }
 
-    private fun resolveRootView(param: MethodHookParam): View? {
+    private fun resolveRootView(param: HookParam): View? {
         return when {
             param.args.isNotEmpty() && param.args[0] is View -> param.args[0] as View
             param.thisObject is View -> param.thisObject as View
@@ -83,7 +81,7 @@ class ViewHierarchyHookHandler : XC_MethodHook() {
 
     private fun shouldRefresh(target: Any, field: String, currentValue: String): Boolean {
         return try {
-            val previous = XposedHelpers.getAdditionalInstanceField(target, field) as? String
+            val previous = HookRuntime.getAdditionalInstanceField(target, field) as? String
             previous != currentValue
         } catch (t: Throwable) {
             true
@@ -92,7 +90,7 @@ class ViewHierarchyHookHandler : XC_MethodHook() {
 
     private fun markProcessed(target: Any, field: String, value: String) {
         try {
-            XposedHelpers.setAdditionalInstanceField(target, field, value)
+            HookRuntime.setAdditionalInstanceField(target, field, value)
         } catch (t: Throwable) {
             Utils.debugLog("$TAG: Failed to mark processed field $field: ${t.message}")
         }

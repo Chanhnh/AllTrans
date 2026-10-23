@@ -24,6 +24,7 @@
     <string name="search">Search</string>
 
     <string name="app_name">"AllTrans"</string>
+    <string name="app_description">"In-app translations anywhere"</string>
     <string name="clear_cache_success">"Please force-close the translated app. Its translation cache will be cleared the next time the app starts."</string>
     <string name="wut_why_null">"Could not load the Per-app preference page. Close and re-open application again."</string>
 

@@ -2,16 +2,15 @@ package chanhnh.alltrans
 
 import android.text.Editable
 import android.text.Spanned
-import de.robv.android.xposed.XC_MethodHook
 
-class LayoutConstructorHookHandler : XC_MethodHook() {
+class LayoutConstructorHookHandler : SafeHook() {
 
     companion object {
         private const val TAG = "AllTrans:LayoutCtorHook"
     }
 
     @Throws(Throwable::class)
-    override fun beforeHookedMethod(param: MethodHookParam) {
+    override fun beforeHookedMethod(param: HookParam) {
         if (param.args.isEmpty() || param.args[0] !is CharSequence) return
 
         val sourceText = param.args[0] as CharSequence

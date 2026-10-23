@@ -8,12 +8,10 @@ import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.TextView
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
 import java.nio.CharBuffer
 import java.util.concurrent.ConcurrentHashMap
 
-class SetTextHookHandler : XC_MethodHook() {
+class SetTextHookHandler : SafeHook() {
 
     companion object {
         private const val TAG = "AllTrans:SetTextHook"
@@ -92,7 +90,7 @@ class SetTextHookHandler : XC_MethodHook() {
         }
     }
 
-    private fun modifyArgument(param: XC_MethodHook.MethodHookParam, newText: CharSequence?) {
+    private fun modifyArgument(param: HookParam, newText: CharSequence?) {
         if (param.args.isEmpty() || param.args[0] == null || newText == null) return
         param.args[0] = when (param.args[0]) {
             is SpannableString -> SpannableString(newText)
@@ -106,7 +104,7 @@ class SetTextHookHandler : XC_MethodHook() {
 
     private fun isEditableTextView(textView: TextView): Boolean {
         return try {
-            val isDefaultEditable = XposedHelpers.callMethod(textView, "getDefaultEditable") as? Boolean ?: false
+            val isDefaultEditable = Reflect.callMethod(textView, "getDefaultEditable") as? Boolean ?: false
             val isEnabled = textView.isEnabled
             isDefaultEditable && isEnabled
         } catch (e: Throwable) {
@@ -223,7 +221,7 @@ class SetTextHookHandler : XC_MethodHook() {
     }
 
     @Throws(Throwable::class)
-    override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
+    override fun beforeHookedMethod(param: HookParam) {
         val methodName = param.method.name
         val textView = param.thisObject as? TextView ?: return
 

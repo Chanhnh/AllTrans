@@ -18,9 +18,7 @@
  */
 package chanhnh.alltrans
 
-import android.content.Context
 import android.util.Log
-import de.robv.android.xposed.XposedHelpers
 import java.io.StringWriter
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -60,7 +58,7 @@ internal object Utils {
         val className = if (clazz != null) clazz.getName() else "null Class"
         val methodDesc = className + "#" + methodName
         try {
-            XposedHelpers.findAndHookMethod(clazz, methodName, *parameterTypesAndCallback)
+            HookRuntime.findAndHookMethod(clazz, methodName, *parameterTypesAndCallback)
             Log.i("AllTransHook", "Successfully hooked: " + methodDesc)
         } catch (e: Throwable) {
             Log.e("AllTransHookError", "Cannot hook method: " + methodDesc, e)
@@ -75,7 +73,7 @@ internal object Utils {
     ) {
         val methodDesc = className + "#" + methodName
         try {
-            XposedHelpers.findAndHookMethod(
+            HookRuntime.findAndHookMethod(
                 className,
                 classLoader,
                 methodName,

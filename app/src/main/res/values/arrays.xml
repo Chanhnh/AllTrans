@@ -19,11 +19,6 @@
   -->
 
 <resources>
-    <string-array name="scopes" translatable="false">
-        <item>android</item>
-        <item>com.android.providers.settings</item>
-    </string-array>
-
     <string-array name="translator_provider_entries">
         <item>Google Translate</item>
         <item>Microsoft Translate</item>

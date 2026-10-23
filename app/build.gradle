@@ -8,14 +8,19 @@ plugins {
     // id 'com.google.firebase.crashlytics'
 }
 
+def releaseStoreFile = project.findProperty("RELEASE_STORE_FILE")
+def hasReleaseSigning = releaseStoreFile != null && file(releaseStoreFile).exists()
+
 android {
     signingConfigs {
-        publish {
-            // Recomenda-se ler propriedades do gradle.properties para segurança
-            storeFile file(project.property("RELEASE_STORE_FILE"))
-            storePassword project.property("RELEASE_STORE_PASSWORD")
-            keyAlias project.property("RELEASE_KEY_ALIAS")
-            keyPassword project.property("RELEASE_KEY_PASSWORD")
+        if (hasReleaseSigning) {
+            publish {
+                // Recomenda-se ler propriedades do gradle.properties para segurança
+                storeFile file(releaseStoreFile)
+                storePassword project.property("RELEASE_STORE_PASSWORD")
+                keyAlias project.property("RELEASE_KEY_ALIAS")
+                keyPassword project.property("RELEASE_KEY_PASSWORD")
+            }
         }
     }
     compileSdk = 36
@@ -36,9 +41,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.publish
+            signingConfig hasReleaseSigning ? signingConfigs.publish : signingConfigs.debug
         }
     }
 
@@ -53,6 +59,7 @@ android {
 
     packagingOptions {
         resources {
+            merges += 'META-INF/xposed/*'
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
@@ -80,8 +87,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.17.0'
 
-    // Xposed
-    compileOnly 'de.robv.android.xposed:api:82'
+    // Modern Xposed API (provided by LSPosed 2.1+)
+    compileOnly 'io.github.libxposed:api:102.0.0'
 
     // Networking & JSON
     implementation 'com.google.code.gson:gson:2.13.1'

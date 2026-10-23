@@ -23,9 +23,6 @@ import android.webkit.WebViewClient
 import android.widget.TextView
 import android.widget.TextView.BufferType
 import androidx.core.net.toUri
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import java.io.EOFException
 import java.io.File
 import java.io.FileInputStream
@@ -36,7 +33,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.util.concurrent.ConcurrentHashMap
 
-internal class AttachBaseContextHookHandler : XC_MethodHook() {
+internal class AttachBaseContextHookHandler : SafeHook() {
 
     companion object {
         // Rastreia quais pacotes já foram hookados para evitar hooks duplicados
@@ -490,7 +487,7 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
             val classLoader = context.classLoader
 
             try {
-                XposedHelpers.findAndHookConstructor(
+                HookRuntime.findAndHookConstructor(
                     "android.text.StaticLayout",
                     classLoader,
                     CharSequence::class.java,
@@ -512,7 +509,7 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
             }
 
             try {
-                XposedHelpers.findAndHookConstructor(
+                HookRuntime.findAndHookConstructor(
                     "android.text.StaticLayout",
                     classLoader,
                     CharSequence::class.java,
@@ -528,7 +525,7 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
             }
 
             try {
-                XposedHelpers.findAndHookConstructor(
+                HookRuntime.findAndHookConstructor(
                     "android.text.BoringLayout",
                     classLoader,
                     CharSequence::class.java,
@@ -545,7 +542,7 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
             }
 
             try {
-                XposedHelpers.findAndHookConstructor(
+                HookRuntime.findAndHookConstructor(
                     "android.text.BoringLayout",
                     classLoader,
                     CharSequence::class.java,
@@ -571,12 +568,12 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
             if (PreferenceList.Notif) {
                 Utils.debugLog("Applying Notification hooks")
 
-                XposedBridge.hookAllMethods(NotificationManager::class.java, "notify",
+                HookRuntime.hookAllMethods(NotificationManager::class.java, "notify",
                     Alltrans.notifyHook)
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     try {
-                        XposedHelpers.findAndHookMethod(NotificationManager::class.java,
+                        HookRuntime.findAndHookMethod(NotificationManager::class.java,
                             "notifyAsUser", String::class.java, Int::class.javaPrimitiveType,
                             Notification::class.java, UserHandle::class.java, Alltrans.notifyHook)
                     } catch (t: Throwable) {
@@ -661,9 +658,9 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
     // MÉTODOS DA INSTÂNCIA (não do companion object)
     // ============================================================================
 
-    override fun afterHookedMethod(methodHookParam: MethodHookParam) {
+    override fun afterHookedMethod(methodHookParam: HookParam) {
         try {
-            if (methodHookParam.args == null || methodHookParam.args.isEmpty() ||
+            if (methodHookParam.args.isEmpty() ||
                 (methodHookParam.args[0] !is Context)) {
                 Utils.debugLog("AllTrans: Invalid args in attachBaseContext hook.")
                 return
@@ -716,9 +713,6 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
                 Utils.debugLog("AllTrans: Application context set successfully for package: $packageName")
             }
 
-            // Inicializar a chave da tag
-            Alltrans.initializeTagKeyIfNeeded()
-
             // Evitar chamar readPrefAndHook para o próprio pacote AllTrans
             if (packageName != "chanhnh.alltrans") {
                 try {
@@ -731,7 +725,7 @@ internal class AttachBaseContextHookHandler : XC_MethodHook() {
             }
         } catch (e: Throwable) {
             Utils.debugLog("Caught Exception in attachBaseContext ${Log.getStackTraceString(e)}")
-            XposedBridge.log(e)
+            HookRuntime.log(e)
         }
     }
 

@@ -20,16 +20,15 @@ package chanhnh.alltrans
 
 import android.annotation.SuppressLint
 import android.webkit.WebView
-import de.robv.android.xposed.XC_MethodHook
 
-internal class WebViewOnCreateHookHandler : XC_MethodHook() {
+internal class WebViewOnCreateHookHandler : SafeHook() {
     @SuppressLint(
         "JavascriptInterface",
         "AddJavascriptInterface",
         "SetJavaScriptEnabled"
     )  // --- MUDANÇA: Hook onAttachedToWindow em vez do construtor ---
     // Isso garante que a WebView esteja mais inicializada
-    override fun afterHookedMethod(methodHookParam: MethodHookParam) {
+    override fun afterHookedMethod(methodHookParam: HookParam) {
         Utils.debugLog("WebViewOnCreateHookHandler: after onAttachedToWindow!")
 
         val webView = methodHookParam.thisObject as WebView

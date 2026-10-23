@@ -102,6 +102,10 @@
     <string name="caching_summary_off">"Not caching translated text. Translation may be slower and use more network data, but this can help with some apps. Turn on to cache translations."</string>
     <string name="caching_summary_on">"Caching translated text to improve speed and reduce repeated network requests. Turn off if a translated app becomes unstable."</string>
 
+    <string name="vietphrase_rule_engine">"VietPhrase Rule Engine"</string>
+    <string name="vietphrase_rule_engine_summary_on">"Using names, pronouns, number/date conversion, chapter labels, and formatting rules. Recommended."</string>
+    <string name="vietphrase_rule_engine_summary_off">"Using legacy dictionary translation only. Turn on for better names, numbers and punctuation."</string>
+
     <!-- delay -->
     <string name="delay">"Delay Before Replacing with Translated Text"</string>
     <string name="delay_summary">"Set the time in milliseconds to wait before replace with translated text. Default Value is 0. Set to 1000–5000 if the translated app is crashing."</string>

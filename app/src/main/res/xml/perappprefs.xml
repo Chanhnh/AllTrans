@@ -155,6 +155,14 @@
             app:summaryOn="@string/notif_summary_on"
             app:title="@string/notif" />
 
+        <SwitchPreference
+            app:iconSpaceReserved="false"
+            app:defaultValue="true"
+            app:key="VietPhraseRuleEngine"
+            app:summaryOff="@string/vietphrase_rule_engine_summary_off"
+            app:summaryOn="@string/vietphrase_rule_engine_summary_on"
+            app:title="@string/vietphrase_rule_engine" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

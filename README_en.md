@@ -36,6 +36,7 @@ Default translation settings:
 - Translation cache with manual clear and automatic clear when the provider changes
 - Per-app override settings
 - `VietPhrase` support for one-way Chinese-to-Vietnamese translation using local dictionary files without Internet access
+- `VietPhrase` advanced rule engine for names, pronouns, numbers/dates, chapter labels, and sentence formatting; it can be disabled to use the legacy dictionary algorithm
 
 ## How to use
 
@@ -58,6 +59,8 @@ Notes about `VietPhrase`:
 - It only supports translation from `Chinese` to `Vietnamese`
 - It uses local dictionary files, so no Internet connection is required
 - It is useful when you want faster offline translation
+- The `VietPhrase Rule Engine` option is enabled by default; disable it in global or per-app settings to use the legacy dictionary algorithm
+- The rule engine and some pronoun data are adapted from duongden's `vietphrase-translator` project (GPL-3.0). See `app/src/main/assets/vietphrase/README.txt`.
 
 ## Build
 

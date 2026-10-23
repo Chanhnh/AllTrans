@@ -28,6 +28,11 @@ class VietPhraseProvider : ContentProvider() {
         val fromLanguage = uri.getQueryParameter(KEY_FROM_LANGUAGE) ?: PreferenceList.VIETPHRASE_SOURCE_LANGUAGE
         val toLanguage = uri.getQueryParameter(KEY_TO_LANGUAGE) ?: PreferenceList.VIETPHRASE_TARGET_LANGUAGE
         val textToTranslate = uri.getQueryParameter(KEY_TEXT_TO_TRANSLATE)
+        val useRuleEngine = when (uri.getQueryParameter(KEY_RULE_ENGINE)) {
+            "0", "false" -> false
+            "1", "true" -> true
+            else -> PreferenceList.VietPhraseRuleEngine
+        }
 
         if (textToTranslate.isNullOrEmpty()) {
             Log.w(TAG, "Text to translate is null or empty.")
@@ -45,7 +50,11 @@ class VietPhraseProvider : ContentProvider() {
             return createResultCursor(textToTranslate, projection, startTime)
         }
 
-        val translatedText = VietPhraseTranslator.translate(safeContext, textToTranslate)
+        val translatedText = VietPhraseTranslator.translate(
+            context = safeContext,
+            text = textToTranslate,
+            advanced = useRuleEngine
+        )
         return createResultCursor(translatedText, projection, startTime)
     }
 
@@ -87,5 +96,6 @@ class VietPhraseProvider : ContentProvider() {
         const val KEY_TEXT_TO_TRANSLATE: String = "text"
         const val KEY_FROM_LANGUAGE: String = "from"
         const val KEY_TO_LANGUAGE: String = "to"
+        const val KEY_RULE_ENGINE: String = "rules"
     }
 }

@@ -84,7 +84,8 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
     private fun enableLocalPrefs(enable: Boolean) {
         val keysToToggle = listOf(
             "TranslateFromLanguage", "TranslateToLanguage", "SetText",
-            "SetHint", "LoadURL", "Notif", "Cache", "Scroll", "Delay", "DelayWebView"
+            "SetHint", "LoadURL", "Notif", "Cache", "Scroll", "Delay", "DelayWebView",
+            "VietPhraseRuleEngine"
         )
         keysToToggle.forEach { key ->
             findPreference<Preference>(key)?.isEnabled = enable
@@ -195,6 +196,12 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
                 ?.putString("ClearCacheTime", System.currentTimeMillis().toString())
                 ?.apply()
             Toast.makeText(preference.context, R.string.clear_cache_success, Toast.LENGTH_SHORT).show()
+            true
+        }
+
+        findPreference<SwitchPreference>("VietPhraseRuleEngine")?.setOnPreferenceChangeListener { _, _ ->
+            requestCacheClearForProviderChange(localPrefs, applicationInfo?.packageName)
+            Toast.makeText(requireContext(), R.string.clear_cache_success, Toast.LENGTH_LONG).show()
             true
         }
 

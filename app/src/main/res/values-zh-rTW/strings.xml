@@ -40,6 +40,10 @@
 	<string name="caching">"使用快取"</string>
 	<string name="caching_summary_off">"不快取翻譯文本。翻譯可能較慢，且會使用更多網路資料，但對某些應用可能更穩定。打開以快取翻譯。"</string>
 	<string name="caching_summary_on">"快取翻譯文本以提升速度並減少重複的網路請求。如果已翻譯的應用程式不穩定，請關閉。"</string>
+
+	<string name="vietphrase_rule_engine">"VietPhrase 規則引擎"</string>
+	<string name="vietphrase_rule_engine_summary_on">"使用人名、代詞、數字/日期轉換、章節標籤和格式規則。建議開啟。"</string>
+	<string name="vietphrase_rule_engine_summary_off">"僅使用舊版詞典翻譯。開啟後可更好地處理人名、數字和標點。"</string>
 	<string name="delay">"替換為已翻譯文本之前的延遲"</string>
 	<string name="delay_summary">"設置在替換為已翻譯文本之前的等待時間（以毫秒為單位）。預設值為 0。如果已翻譯的應用崩潰，則設置為 1000？5000。"</string>
 	<string name="delay_webview">"開始翻譯 Web 視圖之前的延遲"</string>

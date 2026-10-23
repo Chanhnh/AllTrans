@@ -36,6 +36,7 @@ Cài đặt dịch mặc định:
 - Bộ nhớ đệm bản dịch có thể xóa thủ công hoặc tự động đánh dấu xóa khi đổi dịch vụ dịch
 - Ghi đè cài đặt toàn cục cho từng ứng dụng
 - Hỗ trợ `VietPhrase` để dịch một chiều từ tiếng Trung sang tiếng Việt bằng từ điển cục bộ, không cần Internet
+- `VietPhrase` dùng bộ quy tắc tên riêng, đại từ, số/ngày, nhãn chương và định dạng câu; có thể tắt để quay lại thuật toán từ điển cũ
 
 ## Cách sử dụng
 
@@ -58,6 +59,8 @@ Lưu ý về `VietPhrase`:
 - Chỉ hỗ trợ dịch từ `Tiếng Trung` sang `Tiếng Việt`
 - Dùng file từ điển cục bộ nên không cần kết nối Internet
 - Phù hợp khi bạn muốn ưu tiên tốc độ và hoạt động ngoại tuyến
+- Mặc định bật `Bộ quy tắc VietPhrase`; tắt tùy chọn này trong cài đặt Toàn cục hoặc cài đặt riêng của ứng dụng để dùng thuật toán cũ
+- Bộ quy tắc và một số dữ liệu đại từ được chuyển từ dự án `vietphrase-translator` của duongden (GPL-3.0). Xem `app/src/main/assets/vietphrase/README.txt`.
 
 ## Build
 

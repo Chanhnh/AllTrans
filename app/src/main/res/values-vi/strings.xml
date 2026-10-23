@@ -61,6 +61,10 @@
     <string name="caching_summary_off">"Không lưu bộ nhớ đệm bản dịch. Việc dịch có thể chậm hơn và dùng nhiều dữ liệu mạng hơn, nhưng có thể hoạt động tốt hơn với một số ứng dụng. Bật để lưu bộ nhớ đệm bản dịch."</string>
     <string name="caching_summary_on">"Đang lưu bộ nhớ đệm bản dịch để tăng tốc độ dịch và giảm các yêu cầu mạng lặp lại. Tắt nếu ứng dụng đã dịch hoạt động không ổn định."</string>
 
+    <string name="vietphrase_rule_engine">"Bộ quy tắc VietPhrase"</string>
+    <string name="vietphrase_rule_engine_summary_on">"Đang dùng tên riêng, đại từ, chuyển đổi số/ngày, nhãn chương và quy tắc định dạng. Khuyến nghị bật."</string>
+    <string name="vietphrase_rule_engine_summary_off">"Chỉ dùng thuật toán từ điển cũ. Bật để dịch tốt hơn tên riêng, số và dấu câu."</string>
+
     <string name="delay">"Độ trễ trước khi thay bằng văn bản đã dịch"</string>
     <string name="delay_summary">"Đặt thời gian chờ theo mili giây trước khi thay văn bản bằng bản dịch. Giá trị mặc định là 0. Hãy đặt 1000-5000 nếu ứng dụng bị lỗi sau khi dịch."</string>
 

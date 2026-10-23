@@ -424,8 +424,11 @@ internal class GetTranslateToken {
         val proxyUri: Uri
         try {
             val encodedText = URLEncoder.encode(text, "UTF-8")
+            val ruleEngine = if (PreferenceList.VietPhraseRuleEngine) "1" else "0"
             val queryParams =
-                "?from=${URLEncoder.encode(fromLang ?: PreferenceList.VIETPHRASE_SOURCE_LANGUAGE, "UTF-8")}&to=${URLEncoder.encode(toLang ?: PreferenceList.VIETPHRASE_TARGET_LANGUAGE, "UTF-8")}&text=$encodedText"
+                "?from=${URLEncoder.encode(fromLang ?: PreferenceList.VIETPHRASE_SOURCE_LANGUAGE, "UTF-8")}" +
+                    "&to=${URLEncoder.encode(toLang ?: PreferenceList.VIETPHRASE_TARGET_LANGUAGE, "UTF-8")}" +
+                    "&rules=$ruleEngine&text=$encodedText"
             directUri = "content://chanhnh.alltrans.VietPhraseProvider$queryParams".toUri()
             proxyUri = "content://settings/system/alltransProxyProviderURI/chanhnh.alltrans.VietPhraseProvider$queryParams".toUri()
         } catch (e: UnsupportedEncodingException) {

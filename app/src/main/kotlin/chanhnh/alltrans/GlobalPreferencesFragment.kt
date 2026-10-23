@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreference
 import java.text.Collator
 import java.util.TreeMap
 
@@ -154,6 +155,12 @@ class GlobalPreferencesFragment : PreferenceFragmentCompat() {
         }
 
         updateLanguageLists(translatorProvider?.value)
+
+        findPreference<SwitchPreference>("VietPhraseRuleEngine")?.setOnPreferenceChangeListener { _, _ ->
+            requestCacheClearForProviderChange()
+            Toast.makeText(requireContext(), R.string.clear_cache_success, Toast.LENGTH_LONG).show()
+            true
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -177,7 +184,8 @@ class GlobalPreferencesFragment : PreferenceFragmentCompat() {
             "Cache",
             "Scroll",
             "Delay",
-            "DelayWebView"
+            "DelayWebView",
+            "VietPhraseRuleEngine"
         )
     }
 }

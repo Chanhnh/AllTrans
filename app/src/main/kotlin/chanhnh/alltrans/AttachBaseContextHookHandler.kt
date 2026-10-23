@@ -37,6 +37,8 @@ import java.util.concurrent.ConcurrentHashMap
 internal class AttachBaseContextHookHandler : SafeHook() {
 
     companion object {
+        private const val KEY_VIETPHRASE_ENGINE_VERSION = "AllTransVietPhraseEngineVersion"
+
         // Rastreia quais pacotes já foram hookados para evitar hooks duplicados
         private val hookedPackages = ConcurrentHashMap.newKeySet<String>()
 
@@ -300,12 +302,17 @@ internal class AttachBaseContextHookHandler : SafeHook() {
         private fun manageCache(context: Context) {
             Utils.debugLog("manageCache for ${context.packageName}: Caching = ${PreferenceList.Caching}")
 
+            val engineCacheInvalidated = invalidateCacheForVietPhraseEngine(context)
+
             if (PreferenceList.Caching) {
                 Utils.debugLog("Cache ENABLED for ${context.packageName}")
                 clearCacheIfNeeded(context, PreferenceList.CachingTime)
                 loadCacheFromDisk(context)
             } else {
                 Utils.debugLog("Cache DISABLED for ${context.packageName}")
+                if (engineCacheInvalidated) {
+                    clearCacheIfNeeded(context, PreferenceList.CachingTime)
+                }
                 Alltrans.cacheAccess.acquireUninterruptibly()
                 try {
                     Alltrans.cache?.evictAll()
@@ -328,6 +335,30 @@ internal class AttachBaseContextHookHandler : SafeHook() {
                     }
                 }
             }
+        }
+
+        /**
+         * Invalida o cache persistido quando o motor VietPhrase muda. Isso evita
+         * que uma atualização do modulo continue usando traduções geradas pela
+         * versão antiga do algoritmo.
+         */
+        private fun invalidateCacheForVietPhraseEngine(context: Context): Boolean {
+            val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
+            val storedVersion = prefs.getInt(KEY_VIETPHRASE_ENGINE_VERSION, 0)
+            val currentVersion = VietPhraseTranslator.ENGINE_VERSION
+            if (storedVersion >= currentVersion) return false
+
+            val editor = prefs.edit().putInt(KEY_VIETPHRASE_ENGINE_VERSION, currentVersion)
+            val shouldClearCache = PreferenceList.TranslatorProvider == PreferenceList.VIETPHRASE_PROVIDER
+            if (shouldClearCache) {
+                PreferenceList.CachingTime = System.currentTimeMillis()
+                Utils.debugLog(
+                    "VietPhrase engine version changed from $storedVersion to $currentVersion; " +
+                        "scheduling translation cache clear."
+                )
+            }
+            editor.apply()
+            return shouldClearCache
         }
 
         /**

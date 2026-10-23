@@ -40,6 +40,10 @@
 	<string name="caching">"使用缓存"</string>
 	<string name="caching_summary_off">"不缓存翻译文本。翻译可能更慢，并且会使用更多网络数据，但对某些应用可能更稳定。打开以缓存翻译。"</string>
 	<string name="caching_summary_on">"缓存翻译文本以提高速度并减少重复的网络请求。如果已翻译的应用不稳定，请关闭。"</string>
+
+	<string name="vietphrase_rule_engine">"VietPhrase 规则引擎"</string>
+	<string name="vietphrase_rule_engine_summary_on">"使用人名、代词、数字/日期转换、章节标签和格式规则。建议开启。"</string>
+	<string name="vietphrase_rule_engine_summary_off">"仅使用旧版词典翻译。开启后可更好地处理人名、数字和标点。"</string>
 	<string name="delay">"使用翻译文本替换前的延迟"</string>
 	<string name="delay_summary">"将等待的时间设置为毫秒，然后再替换为已翻译的文本。默认值为 0。如果翻译的应用程序崩溃，则设置为 1000？5000。"</string>
 	<string name="delay_webview">"开始翻译 WebViews 之前的延迟"</string>

@@ -140,6 +140,14 @@
 
         <SwitchPreference
             app:iconSpaceReserved="false"
+            app:key="VietPhraseRuleEngine"
+            app:title="@string/vietphrase_rule_engine"
+            app:summaryOn="@string/vietphrase_rule_engine_summary_on"
+            app:summaryOff="@string/vietphrase_rule_engine_summary_off"
+            app:defaultValue="true" />
+
+        <SwitchPreference
+            app:iconSpaceReserved="false"
             app:key="Debug"
             app:title="@string/debug"
             app:summaryOn="@string/debug_summary_on"

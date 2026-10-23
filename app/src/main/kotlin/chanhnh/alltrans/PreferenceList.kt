@@ -26,6 +26,7 @@ internal object PreferenceList {
     var Delay: Int = 0
     var DelayWebView: Int = 0
     var Scroll: Boolean = false
+    var VietPhraseRuleEngine: Boolean = true
 
     var TranslatorProvider: String? = "g"
 
@@ -100,6 +101,11 @@ internal object PreferenceList {
             Notif = getValue(lPref, "Notif", getValue(gPref, "Notif", true)) as Boolean
             Caching = getValue(lPref, "Cache", getValue(gPref, "Cache", true)) as Boolean
             Scroll = getValue(lPref, "Scroll", getValue(gPref, "Scroll", false)) as Boolean
+            VietPhraseRuleEngine = getValue(
+                lPref,
+                "VietPhraseRuleEngine",
+                getValue(gPref, "VietPhraseRuleEngine", true)
+            ) as Boolean
 
             try {
                 Delay = (getValue(lPref, "Delay", getValue(gPref, "Delay", "0")) as String?)?.toIntOrNull() ?: 0
@@ -119,6 +125,7 @@ internal object PreferenceList {
             Notif = getValue(gPref, "Notif", true) as Boolean
             Caching = getValue(gPref, "Cache", true) as Boolean
             Scroll = getValue(gPref, "Scroll", false) as Boolean
+            VietPhraseRuleEngine = getValue(gPref, "VietPhraseRuleEngine", true) as Boolean
 
             try {
                 Delay = (getValue(gPref, "Delay", "0") as String?)?.toIntOrNull() ?: 0
@@ -133,6 +140,7 @@ internal object PreferenceList {
 
         Utils.debugLog("---- Prefs loaded for $packageName ----")
         Utils.debugLog("Provider: $TranslatorProvider, From: $TranslateFromLanguage, To: $TranslateToLanguage")
+        Utils.debugLog("VietPhrase rule engine: $VietPhraseRuleEngine")
         Utils.debugLog("---- End Prefs for $packageName ----")
     }
 }

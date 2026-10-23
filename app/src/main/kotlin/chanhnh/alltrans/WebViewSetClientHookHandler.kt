@@ -18,12 +18,19 @@
  */
 package chanhnh.alltrans
 
+import android.webkit.WebView
 import android.webkit.WebViewClient
 
 class WebViewSetClientHookHandler : SafeHook() {
     override fun beforeHookedMethod(methodHookParam: HookParam) {
+        val webView = methodHookParam.thisObject as? WebView
+        if (webView == null || !PreferenceManager.isWebViewTranslationEnabled(webView.context)) {
+            return
+        }
+        if (methodHookParam.args.isEmpty()) return
+
         Utils.debugLog("we are setting WebViewClient!")
-        val ori = methodHookParam.args[0] as WebViewClient?
+        val ori = methodHookParam.args.getOrNull(0) as WebViewClient?
         methodHookParam.args[0] = WebViewClientWrapper(ori)
     }
 }

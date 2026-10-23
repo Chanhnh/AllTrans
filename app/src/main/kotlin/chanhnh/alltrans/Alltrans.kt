@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.util.LruCache
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.core.net.toUri
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface
@@ -84,59 +83,6 @@ class Alltrans : XposedModule() {
             AttachBaseContextHookHandler()
         )
 
-        val isSystemPackage = packageName.startsWith("android.") ||
-                packageName.startsWith("com.android.") ||
-                packageName == "system" ||
-                packageName == "com.google.android.webview"
-
-        if (!isSystemPackage) {
-            try {
-                val webViewClass = param.defaultClassLoader.loadClass("android.webkit.WebView")
-                Utils.debugLog("AllTrans: WebView class found in $packageName")
-
-                Utils.tryHookMethod(
-                    webViewClass,
-                    "onAttachedToWindow",
-                    WebViewOnCreateHookHandler()
-                )
-                Utils.debugLog("AllTrans: WebView.onAttachedToWindow hook applied successfully for $packageName")
-
-                Utils.tryHookMethod(
-                    webViewClass,
-                    "setWebViewClient",
-                    WebViewClient::class.java,
-                    WebViewSetClientHookHandler()
-                )
-                Utils.debugLog("AllTrans: WebView.setWebViewClient hook applied successfully for $packageName")
-
-                try {
-                    HookRuntime.hookAllMethods(webViewClass, "onDetachedFromWindow", object : SafeHook() {
-                        @Throws(Throwable::class)
-                        override fun beforeHookedMethod(param: HookParam) {
-                            val webView = param.thisObject as? WebView
-                            if (webView != null) {
-                                val removedInstance = webViewHookInstances.remove(webView)
-                                if (removedInstance != null) {
-                                    Utils.debugLog("AllTrans: Cleaned up WebView instance on detach (hookAllMethods): ${webView.hashCode()}")
-                                }
-                            }
-                        }
-                    })
-                    Utils.debugLog("AllTrans: WebView.onDetachedFromWindow hook (hookAllMethods) applied for $packageName")
-                } catch (e: Throwable) {
-                    Utils.debugLog("AllTrans: Failed to hook WebView.onDetachedFromWindow (hookAllMethods) for $packageName: ${e.message}")
-                    HookRuntime.log(e)
-                }
-
-            } catch (e: ClassNotFoundException) {
-                Utils.debugLog("AllTrans: WebView class not found in $packageName for main hooks: " + e.message)
-            } catch (e: Exception) {
-                Utils.debugLog("AllTrans: Error setting up main WebView hooks for $packageName: " + e.message)
-                HookRuntime.log(e)
-            }
-        } else {
-            Utils.debugLog("AllTrans: Skipping main WebView hooks for system package: $packageName")
-        }
     }
 
     @Throws(Throwable::class)
@@ -520,6 +466,8 @@ class Alltrans : XposedModule() {
         val notifyHook: NotificationHookHandler = NotificationHookHandler()
 
         private const val CACHE_MAX_SIZE = 200
+
+        @Volatile
         private var _cache: LruCache<String, String>? = null
 
         var cache: LruCache<String, String>?
@@ -540,6 +488,7 @@ class Alltrans : XposedModule() {
                 }
             }
 
+        @Volatile
         @SuppressLint("StaticFieldLeak")
         var context: Context? = null
         var settingsHooked: Boolean = false
@@ -554,16 +503,11 @@ class Alltrans : XposedModule() {
         const val ALLTRANS_TRANSLATION_APPLIED_TAG_KEY: Int = 0x7A117AA6
         const val ALLTRANS_PENDING_TRANSLATION_TAG_KEY: Int = 0x7A117AA7
         const val ALLTRANS_PENDING_SPAN_PAYLOAD_TAG_KEY: Int = 0x7A117AA8
+        const val WEBVIEW_CLEANUP_TAG_KEY: Int = 0x7A117AA9
 
         val webViewHookInstances: MutableMap<WebView?, VirtWebViewOnLoad?> =
             Collections.synchronizedMap(
                 WeakHashMap()
             )
-
-        fun cleanupWebViewHooks() {
-            synchronized(webViewHookInstances) {
-                webViewHookInstances.keys.removeIf { it == null }
-            }
-        }
     }
 }

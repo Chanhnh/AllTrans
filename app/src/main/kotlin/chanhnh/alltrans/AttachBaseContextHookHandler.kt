@@ -1,7 +1,6 @@
 // AttachBaseContextHookHandler.kt (Corrigido - readPrefAndHook no companion object)
 package chanhnh.alltrans
 
-import android.util.LruCache
 import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
@@ -23,6 +22,8 @@ import android.webkit.WebViewClient
 import android.widget.TextView
 import android.widget.TextView.BufferType
 import androidx.core.net.toUri
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.EOFException
 import java.io.File
 import java.io.FileInputStream
@@ -334,7 +335,6 @@ internal class AttachBaseContextHookHandler : SafeHook() {
          */
         private fun loadCacheFromDisk(context: Context) {
             var fis: FileInputStream? = null
-            var ois: ObjectInputStream? = null
             var semaphoreAcquired = false
 
             try {
@@ -345,48 +345,33 @@ internal class AttachBaseContextHookHandler : SafeHook() {
                 }
 
                 fis = context.openFileInput("AllTransCache")
+
+                val cacheType = object : TypeToken<Map<String, String>>() {}.type
+                val cachedValues: Map<String, String>? = Gson().fromJson(
+                    fis.reader(Charsets.UTF_8),
+                    cacheType
+                )
+
                 Alltrans.cacheAccess.acquireUninterruptibly()
                 semaphoreAcquired = true
 
                 val cacheRef = Alltrans.cache
                 cacheRef?.evictAll()
 
-                try {
-                    ois = ObjectInputStream(fis)
-                    val readObj = ois.readObject()
-
-                    when (readObj) {
-                        is HashMap<*, *> -> {
-                            @Suppress("UNCHECKED_CAST")
-                            val typedMap = readObj as HashMap<String, String>
-                            typedMap.forEach { (key, value) ->
-                                if (key != null && value != null) {
-                                    cacheRef?.put(key, value)
-                                }
-                            }
-                            Utils.debugLog("Cache loaded from HashMap. Size: ${cacheRef?.size()}")
+                if (cachedValues != null) {
+                    cachedValues.forEach { (key, value) ->
+                        if (key.isNotEmpty() && value.isNotEmpty()) {
+                            cacheRef?.put(key, value)
                         }
-                        is LruCache<*, *> -> {
-                            @Suppress("UNCHECKED_CAST")
-                            val lruMap = readObj as LruCache<String, String>
-                            lruMap.snapshot().forEach { (key, value) ->
-                                if (key != null && value != null) {
-                                    cacheRef?.put(key, value)
-                                }
-                            }
-                            Utils.debugLog("Cache loaded from LruCache. Size: ${cacheRef?.size()}")
-                        }
-                        else -> Utils.debugLog("Unknown cache format")
                     }
-                } catch (e: Exception) {
-                    Utils.debugLog("Error reading cache: ${e.message}")
-                    context.deleteFile("AllTransCache")
+                    Utils.debugLog("Cache loaded from JSON. Size: ${cacheRef?.size()}")
+                } else {
+                    Utils.debugLog("Cache JSON was empty or invalid")
                 }
             } catch (e: Throwable) {
                 Utils.debugLog("Error loading cache: ${e.message}")
                 try { context.deleteFile("AllTransCache") } catch (ignored: Exception) {}
             } finally {
-                try { ois?.close() } catch (ignored: IOException) {}
                 try { fis?.close() } catch (ignored: IOException) {}
                 if (semaphoreAcquired && Alltrans.cacheAccess.availablePermits() == 0) {
                     Alltrans.cacheAccess.release()
@@ -404,7 +389,8 @@ internal class AttachBaseContextHookHandler : SafeHook() {
                 // Todas as variantes de setText
                 Utils.tryHookMethod(TextView::class.java, "setText", CharSequence::class.java, setTextHook)
                 Utils.tryHookMethod(TextView::class.java, "setText", CharSequence::class.java, BufferType::class.java, setTextHook)
-                Utils.tryHookMethod(TextView::class.java, "setText", CharSequence::class.java, BufferType::class.java, Boolean::class.javaPrimitiveType, setTextHook)
+                // TextView has no public 3-argument setText overload; the hidden
+                // implementation is setText(CharSequence, BufferType, boolean, int).
                 Utils.tryHookMethod(TextView::class.java, "setText", CharSequence::class.java, BufferType::class.java, Boolean::class.javaPrimitiveType, Int::class.javaPrimitiveType, setTextHook)
 
                 // Hook append()
@@ -570,6 +556,19 @@ internal class AttachBaseContextHookHandler : SafeHook() {
 
                 HookRuntime.hookAllMethods(NotificationManager::class.java, "notify",
                     Alltrans.notifyHook)
+
+                // notifyAsPackage has a hidden framework signature. Hook every
+                // overload and let NotificationHookHandler locate the
+                // Notification argument by type.
+                try {
+                    HookRuntime.hookAllMethods(
+                        NotificationManager::class.java,
+                        "notifyAsPackage",
+                        Alltrans.notifyHook
+                    )
+                } catch (t: Throwable) {
+                    Utils.debugLog("notifyAsPackage hook failed: ${t.message}")
+                }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     try {

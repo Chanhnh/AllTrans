@@ -19,6 +19,7 @@
 package chanhnh.alltrans
 
 import android.annotation.SuppressLint
+import android.view.View
 import android.webkit.WebView
 
 internal class WebViewOnCreateHookHandler : SafeHook() {
@@ -26,31 +27,43 @@ internal class WebViewOnCreateHookHandler : SafeHook() {
         "JavascriptInterface",
         "AddJavascriptInterface",
         "SetJavaScriptEnabled"
-    )  // --- MUDANÇA: Hook onAttachedToWindow em vez do construtor ---
-    // Isso garante que a WebView esteja mais inicializada
+    )
     override fun afterHookedMethod(methodHookParam: HookParam) {
+        val webView = methodHookParam.thisObject as? WebView ?: return
+
+        if (!PreferenceManager.isWebViewTranslationEnabled(webView.context)) {
+            Utils.debugLog("WebViewOnCreateHookHandler: WebView translation disabled for ${webView.context.packageName}")
+            return
+        }
+
         Utils.debugLog("WebViewOnCreateHookHandler: after onAttachedToWindow!")
 
-        val webView = methodHookParam.thisObject as WebView
         val webSettings = webView.getSettings()
+        webSettings.javaScriptEnabled = true
 
-        // Habilita JavaScript (essencial)
-        webSettings.setJavaScriptEnabled(true)
+        val webViewHookInstance = Alltrans.webViewHookInstances[webView]
+            ?: VirtWebViewOnLoad(webView).also { instance ->
+                Alltrans.webViewHookInstances[webView] = instance
 
-        // --- INÍCIO DA MODIFICAÇÃO: Usar Mapa Estático ---
-        // Cria uma nova instância de VirtWebViewOnLoad para esta WebView específica
-        val webViewHookInstance = VirtWebViewOnLoad(webView)
+                // The View hierarchy owns this listener, so it is released together
+                // with the WebView. The tag prevents duplicate listeners on reattach.
+                if (webView.getTag(Alltrans.WEBVIEW_CLEANUP_TAG_KEY) != true) {
+                    webView.setTag(Alltrans.WEBVIEW_CLEANUP_TAG_KEY, true)
+                    webView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                        override fun onViewAttachedToWindow(v: View) {}
 
-        // Armazena a instância no mapa estático usando a WebView como chave
-        Alltrans.Companion.webViewHookInstances.put(webView, webViewHookInstance)
-        Utils.debugLog("WebViewOnCreateHookHandler: Stored hook instance for WebView " + webView.hashCode() + " in map.")
+                        override fun onViewDetachedFromWindow(v: View) {
+                            val detachedWebView = v as? WebView ?: return
+                            Alltrans.webViewHookInstances.remove(detachedWebView)
+                            detachedWebView.removeJavascriptInterface("injectedObject")
+                        }
+                    })
+                }
 
-        // Adiciona a *instância específica* como interface JavaScript
+                Utils.debugLog("WebViewOnCreateHookHandler: Stored hook instance for WebView ${webView.hashCode()} in map.")
+            }
+
         webView.addJavascriptInterface(webViewHookInstance, "injectedObject")
-        Utils.debugLog("WebViewOnCreateHookHandler: Added JS interface for WebView " + webView.hashCode())
-
-        // --- FIM DA MODIFICAÇÃO ---
-
-        // Linhas removidas (setTag, addJavascriptInterface(webView), setWebViewClient)
-    } // Fim do afterHookedMethod
-} // Fim da classe WebViewOnCreateHookHandler
+        Utils.debugLog("WebViewOnCreateHookHandler: Added JS interface for WebView ${webView.hashCode()}")
+    }
+}

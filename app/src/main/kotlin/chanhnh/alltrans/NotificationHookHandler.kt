@@ -19,7 +19,10 @@ class NotificationHookHandler : SafeReplacementHook(), OriginalCallable {
         val myMethod = methodHookParam.method as Method
         myMethod.setAccessible(true)
         val myArgs = methodHookParam.args
-        val notification = methodHookParam.args[methodHookParam.args.size - 1] as Notification
+        val notification = findNotification(myArgs) ?: run {
+            Log.e("AllTrans", "NotificationHookHandler: no Notification argument found in ${myMethod.name}")
+            return
+        }
 
         if (translatedString != null) {
             changeText(notification, originalString, translatedString.toString())
@@ -306,7 +309,19 @@ class NotificationHookHandler : SafeReplacementHook(), OriginalCallable {
         }
 
         Utils.debugLog("Notification : in notificationhook ")
-        val notification = methodHookParam.args[methodHookParam.args.size - 1] as Notification
+        val notification = findNotification(methodHookParam.args)
+        if (notification == null) {
+            Log.e("AllTrans", "NotificationHookHandler: no Notification argument found; invoking original.")
+            return try {
+                val method = methodHookParam.method as Method
+                method.isAccessible = true
+                HookRuntime.invokeOriginal(method, methodHookParam.thisObject, methodHookParam.args)
+            } catch (e: Exception) {
+                Log.e("AllTrans", "Error calling original notification method", e)
+                null
+            }
+        }
+
         val userDataOut = NotificationHookUserData(methodHookParam, "")
         callOriginalMethod("", userDataOut)
 
@@ -371,7 +386,9 @@ class NotificationHookHandler : SafeReplacementHook(), OriginalCallable {
                     Alltrans.pendingTextViewTranslations.remove(compositeKey)
                     Utils.debugLog("NotificationHookHandler: Removed composite key ($compositeKey) from pending set after cache hit.")
                 }
-                callOriginalMethod(translatedStringFromCache, userData)
+                if (!SetTextHookHandler.isNoTranslationMarker(translatedStringFromCache)) {
+                    callOriginalMethod(translatedStringFromCache, userData)
+                }
                 continue
             }
 
@@ -387,6 +404,10 @@ class NotificationHookHandler : SafeReplacementHook(), OriginalCallable {
             getTranslateToken.doAll()
         }
         return null
+    }
+
+    private fun findNotification(args: Array<Any?>?): Notification? {
+        return args?.firstOrNull { it is Notification } as? Notification
     }
 
     companion object {

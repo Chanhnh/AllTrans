@@ -8,6 +8,7 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
 import java.io.IOException
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 
 class GetTranslate : Callback {
@@ -20,6 +21,14 @@ class GetTranslate : Callback {
     var spanTranslationPayload: SpanTranslationPayload? = null
     var translatedSegments: List<String>? = null
     var forceCacheResult: Boolean = false
+
+    /**
+     * Set by GetTranslateToken when this request is the leader of a
+     * deduplicated batch. Completing it wakes every duplicate waiter with the
+     * final translated (or fallback) string.
+     */
+    @Volatile
+    var completionFuture: CompletableFuture<String?>? = null
 
     private val responseHandled = AtomicBoolean(false)
     private val failureHandled = AtomicBoolean(false)
@@ -51,6 +60,7 @@ class GetTranslate : Callback {
             val finalString: String = translatedString ?: stringToBeTrans ?: ""
             val processingTime = System.currentTimeMillis() - startTime
             Utils.debugLog("$TAG: Response processed in ${processingTime}ms: [$finalString]")
+            completionFuture?.complete(finalString)
             triggerCallback(finalString, stringToBeTrans, userData, originalCallable, canCallOriginal, pendingCompositeKey)
         }
     }
@@ -86,10 +96,13 @@ class GetTranslate : Callback {
 
         Alltrans.cacheAccess.acquireUninterruptibly()
         try {
-            Alltrans.cache?.let {
+            val cache = Alltrans.cache
+            if (cache != null) {
                 Utils.debugLog("$TAG: Caching: [$original] -> [$translated]")
-                it.put(original, translated)
-            } ?: Utils.debugLog("$TAG: Cache is null.")
+                cache.put(original, translated)
+            } else {
+                Utils.debugLog("$TAG: Cache is null.")
+            }
         } finally {
             if (Alltrans.cacheAccess.availablePermits() == 0) {
                 Alltrans.cacheAccess.release()
@@ -124,7 +137,13 @@ class GetTranslate : Callback {
                         finalString
                     }
 
-                    if (translatedText.toString() != originalString || !tv.text.toString().equals(translatedText.toString())) {
+                    if (tv.layoutParams == null) {
+                        // A detached/programmatic TextView can have no layout
+                        // params yet. Setting text then makes the framework
+                        // throw from checkForRelayout(); a later setText will
+                        // translate it once the view is attached.
+                        Utils.debugLog("$TAG: Skipping TextView update (${tv.hashCode()}) key ($keyToRemove) - no layout params.")
+                    } else if (translatedText.toString() != originalString || !tv.text.toString().equals(translatedText.toString())) {
                         Utils.debugLog("$TAG: Updating TextView (${tv.hashCode()}) key ($keyToRemove): [${translatedText.toString()}]")
                         tv.setTag(Alltrans.ALLTRANS_TRANSLATION_APPLIED_TAG_KEY, true)
                         tv.text = translatedText
@@ -164,6 +183,10 @@ class GetTranslate : Callback {
         }
 
         Log.e(TAG, "Network request failed for: [${stringToBeTrans ?: "Unknown"}] Reason: ${Log.getStackTraceString(e)}")
+
+        // A failed leader must still release duplicate waiters. They should
+        // receive the original text so their UI/notification is not lost.
+        completionFuture?.complete(stringToBeTrans.orEmpty())
 
         val keyToRemove = pendingCompositeKey
         val localOriginalString = stringToBeTrans

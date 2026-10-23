@@ -19,17 +19,19 @@
 package chanhnh.alltrans
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.webkit.JavascriptInterface
-import android.webkit.ValueCallback
 import android.webkit.WebView
-import java.io.FileOutputStream
+import java.lang.ref.WeakReference
 
-class VirtWebViewOnLoad(private val webViewInstance: WebView?) : OriginalCallable {
+class VirtWebViewOnLoad(webView: WebView?) : OriginalCallable {
+    private val webViewRef = WeakReference(webView)
+    private val webViewInstance: WebView?
+        get() = webViewRef.get()
+
     init {
-        Utils.debugLog("VirtWebViewOnLoad: Instance created for WebView: " + (if (webViewInstance != null) webViewInstance.hashCode() else "null"))
+        Utils.debugLog("VirtWebViewOnLoad: Instance created for WebView: " + (if (webView != null) webView.hashCode() else "null"))
     }
 
     override fun callOriginalMethod(translatedString: CharSequence?, userData: Any?) {
@@ -43,11 +45,19 @@ class VirtWebViewOnLoad(private val webViewInstance: WebView?) : OriginalCallabl
             Utils.debugLog("VirtWebViewOnLoad: Error in callOriginalMethod - webView from userData is null")
             return
         }
+        if (!PreferenceManager.isWebViewTranslationEnabled(webView.context)) {
+            Utils.debugLog("VirtWebViewOnLoad: WebView translation disabled; skipping async injection.")
+            return
+        }
 
         val originalUnescaped = webHookUserData2.stringArgs
-        val translatedValue = translatedString.toString()
+        val translatedValue = translatedString?.toString() ?: run {
+            Utils.debugLog("VirtWebViewOnLoad: translated string is null.")
+            markNodeAsTranslated(webView, originalUnescaped)
+            return
+        }
 
-        if (translatedValue == null || originalUnescaped == null || translatedValue == originalUnescaped) {
+        if (originalUnescaped == null || translatedValue == originalUnescaped) {
             Utils.debugLog("VirtWebViewOnLoad: Skipping JS injection in callOriginalMethod - translated string is null or same as original.")
             markNodeAsTranslated(webView, originalUnescaped)
             return
@@ -120,7 +130,9 @@ class VirtWebViewOnLoad(private val webViewInstance: WebView?) : OriginalCallabl
             .replace("\r", "\\r")
             .replace("\t", "\\t")
             .replace("\b", "\\b")
-            .replace("\u000c", "\\f") + "'"
+            .replace("\u000c", "\\f")
+            .replace("\u2028", "\\u2028")
+            .replace("\u2029", "\\u2029") + "'"
     }
 
     private fun markNodeAsTranslated(webView: WebView?, originalText: String?) {
@@ -170,6 +182,11 @@ class VirtWebViewOnLoad(private val webViewInstance: WebView?) : OriginalCallabl
     @Throws(Throwable::class)
     fun afterOnLoadMethod(webView: WebView) {
         Utils.debugLog("VirtWebViewOnLoad: afterOnLoadMethod ENTERED for WebView: " + webView.hashCode())
+
+        if (!PreferenceManager.isWebViewTranslationEnabled(webView.context)) {
+            Utils.debugLog("VirtWebViewOnLoad: WebView translation disabled; skipping page script.")
+            return
+        }
 
         // Adiciona interface JS
         webView.addJavascriptInterface(this, "injectedObject")
@@ -252,8 +269,8 @@ class VirtWebViewOnLoad(private val webViewInstance: WebView?) : OriginalCallabl
         val context = webView.context ?: return
         val packageName = context.packageName ?: return
 
-        if (!PreferenceManager.isEnabledForPackage(context, packageName)) {
-            Utils.debugLog("VirtWebViewOnLoad: AllTrans DESABILITADO para este app ($packageName). Pulando tradução para [$stringArgs]")
+        if (!PreferenceManager.isWebViewTranslationEnabled(context)) {
+            Utils.debugLog("VirtWebViewOnLoad: WebView translation disabled for this app ($packageName). Skipping [$stringArgs]")
             return
         }
 
@@ -281,34 +298,22 @@ class VirtWebViewOnLoad(private val webViewInstance: WebView?) : OriginalCallabl
                 }
             }
 
-            if (cachedValue != null && cachedValue != stringArgs) {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    callOriginalMethod(cachedValue, WebHookUserData2(webView, stringArgs))
-                }, PreferenceList.Delay.toLong())
-                translationNeeded = false
-            } else if (cachedValue == stringArgs) {
-                markNodeAsTranslated(webView, stringArgs)
-                translationNeeded = false
+            if (cachedValue != null) {
+                if (cachedValue == stringArgs || SetTextHookHandler.isNoTranslationMarker(cachedValue)) {
+                    markNodeAsTranslated(webView, stringArgs)
+                    translationNeeded = false
+                } else {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        callOriginalMethod(cachedValue, WebHookUserData2(webView, stringArgs))
+                    }, PreferenceList.Delay.toLong())
+                    translationNeeded = false
+                }
             }
         }
 
         if (translationNeeded) {
             Utils.debugLog("VirtWebViewOnLoad: showLog - Requesting translation for: [$stringArgs]")
             GetTranslateToken().apply { getTranslate = translationRequest }.doAll()
-        }
-    }
-
-    @Suppress("unused")
-    @JavascriptInterface
-    fun WriteHTML(html: String) {
-        val contextRef = Alltrans.context ?: return
-        try {
-            contextRef.openFileOutput("AllTransWebViewDebug.html", Context.MODE_PRIVATE).use { fos ->
-                fos.write(html.toByteArray())
-            }
-            Utils.debugLog("VirtWebViewOnLoad: WriteHTML - Saved HTML snapshot.")
-        } catch (e: Throwable) {
-            Utils.debugLog("VirtWebViewOnLoad: WriteHTML - Exception while writing HTML: $e")
         }
     }
 

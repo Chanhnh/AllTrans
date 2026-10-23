@@ -21,6 +21,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -37,45 +38,72 @@ internal class GetTranslateToken {
 
         val text = callback.stringToBeTrans
         val spanPayload = callback.spanTranslationPayload
+        val deduplicationKey = if (spanPayload == null && !text.isNullOrEmpty()) {
+            createDeduplicationKey(text)
+        } else {
+            null
+        }
 
-        // Request deduplication for single-text mode
-        if (spanPayload == null && !text.isNullOrEmpty()) {
-            val deduplicationKey = createDeduplicationKey(text)
-            val existingFuture = activeRequests[deduplicationKey]
-            if (existingFuture != null && !existingFuture.isDone) {
+        var completionFuture: CompletableFuture<String?>? = null
+
+        if (deduplicationKey != null) {
+            val newFuture = CompletableFuture<String?>()
+            val existingFuture = activeRequests.putIfAbsent(deduplicationKey, newFuture)
+            if (existingFuture != null) {
                 Utils.debugLog("$TAG: Deduplicating request for: [$text]")
-                existingFuture.thenAccept { result ->
+                existingFuture.whenComplete { result, _ ->
                     handleDuplicateResult(callback, result)
                 }
                 return
             }
+
+            completionFuture = newFuture
+            callback.completionFuture = newFuture
+            newFuture.whenComplete { _, _ ->
+                activeRequests.remove(deduplicationKey, newFuture)
+            }
         }
 
         val task = TranslationTask(callback)
-        val future = CompletableFuture.supplyAsync({ task.call() }, googleQueryExecutor)
-
-        if (spanPayload == null && !text.isNullOrEmpty()) {
-            val deduplicationKey = createDeduplicationKey(text)
-            activeRequests[deduplicationKey] = future
-            future.whenComplete { _, _ ->
-                activeRequests.remove(deduplicationKey)
+        try {
+            googleQueryExecutor.execute {
+                try {
+                    task.call()
+                } catch (t: Throwable) {
+                    Log.e(TAG, "Unexpected translation task failure for: [$text]", t)
+                    completionFuture?.complete(text)
+                    handleTranslationFailure("Unexpected translation task failure", t)
+                }
             }
+        } catch (e: RejectedExecutionException) {
+            Log.e(TAG, "Translation executor rejected task for: [$text]", e)
+            completionFuture?.complete(text)
+            if (deduplicationKey != null) {
+                completionFuture?.let { future ->
+                    activeRequests.remove(deduplicationKey, future)
+                }
+            }
+            handleTranslationFailure("Translation executor rejected task", e)
         }
     }
 
     private fun createDeduplicationKey(text: String): String {
-        return "${PreferenceList.TranslateFromLanguage}-${PreferenceList.TranslateToLanguage}-${text.hashCode()}"
+        val provider = PreferenceList.TranslatorProvider ?: "g"
+        val from = PreferenceList.TranslateFromLanguage ?: "auto"
+        val to = PreferenceList.TranslateToLanguage ?: "en"
+        return "$provider|$from|$to|$text"
     }
 
     private fun handleDuplicateResult(callback: GetTranslate, result: String?) {
         val mockRequest = Request.Builder().url("https://mock.deduplicated.call").build()
         val mockCall = createMockHttpClient().newCall(mockRequest)
+        val fallback = callback.stringToBeTrans.orEmpty()
         val response = Response.Builder()
             .request(mockRequest)
             .protocol(Protocol.HTTP_2)
             .code(200)
             .message("OK (Deduplicated)")
-            .body((result ?: "").toResponseBody(null))
+            .body((result ?: fallback).toResponseBody(null))
             .build()
 
         Handler(Looper.getMainLooper()).post {

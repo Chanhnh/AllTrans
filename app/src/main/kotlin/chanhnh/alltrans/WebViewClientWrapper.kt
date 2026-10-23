@@ -27,6 +27,8 @@ import android.util.Log
 import android.view.KeyEvent
 import android.webkit.ClientCertRequest
 import android.webkit.HttpAuthHandler
+import android.webkit.RenderProcessGoneDetail
+import android.webkit.SafeBrowsingResponse
 import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -107,6 +109,12 @@ class WebViewClientWrapper(private val oriClient: WebViewClient?) : WebViewClien
         }
 
         // --- INÍCIO DA MODIFICAÇÃO: Recuperar do Mapa Estático ---
+        if (!PreferenceManager.isWebViewTranslationEnabled(view.context)) {
+            Utils.debugLog("WebViewClientWrapper: WebView translation disabled; skipping page script.")
+            Utils.debugLog("WebViewClientWrapper: onPageFinished END for URL: " + url + " WebView: " + view.hashCode())
+            return
+        }
+
         try {
             Utils.debugLog("WebViewClientWrapper: Attempting to retrieve VirtWebViewOnLoad instance from map...")
             // Recupera a instância do mapa usando a WebView como chave
@@ -261,5 +269,20 @@ class WebViewClientWrapper(private val oriClient: WebViewClient?) : WebViewClien
     ) {
         super.onReceivedLoginRequest(view, realm, account, args)
         if (oriClient != null) oriClient.onReceivedLoginRequest(view, realm, account, args)
+    }
+
+    override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+        super.onRenderProcessGone(view, detail)
+        return oriClient?.onRenderProcessGone(view, detail) ?: false
+    }
+
+    override fun onSafeBrowsingHit(
+        view: WebView?,
+        request: WebResourceRequest?,
+        threatType: Int,
+        response: SafeBrowsingResponse?
+    ) {
+        super.onSafeBrowsingHit(view, request, threatType, response)
+        oriClient?.onSafeBrowsingHit(view, request, threatType, response)
     }
 }

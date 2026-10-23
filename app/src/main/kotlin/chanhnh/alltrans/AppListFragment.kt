@@ -99,11 +99,16 @@ class AppListFragment : Fragment(), SearchableFragment {
         loadingIndicator?.isVisible = true
         listview?.isVisible = false
 
-        lifecycleScope.launch(Dispatchers.Main) {
+        // Capture a stable context before leaving the main thread. requireContext()
+        // inside Dispatchers.IO can crash if the fragment is detached meanwhile.
+        val appContext = requireContext().applicationContext
+        val uiContext = requireContext()
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             val freshLoadedPackages = withContext(Dispatchers.IO) {
                 Utils.debugLog("AppListFragment: Loading packages in IO thread...")
-                val pm = requireContext().packageManager
-                val packages = getInstalledApplications(requireContext())
+                val pm = appContext.packageManager
+                val packages = getInstalledApplications(appContext)
                 packages.sortWith(Comparator { a, b ->
                     val aEnabled = settings?.contains(a.packageName) == true
                     val bEnabled = settings?.contains(b.packageName) == true
@@ -117,16 +122,19 @@ class AppListFragment : Fragment(), SearchableFragment {
                 packages
             }
 
-            if (isAdded) { // Check if fragment is still added
-                Utils.debugLog("AppListFragment: Packages loaded, creating/updating adapter with ${freshLoadedPackages.size} items.")
-                adapter = StableArrayAdapter(requireContext(), freshLoadedPackages)
-                listview?.adapter = adapter
-
-                Utils.debugLog("AppListFragment: Applying initial ViewModel filter '$initialQueryFromViewModel' after new adapter set.")
-                adapter?.filter?.filter(initialQueryFromViewModel)
-
-                listview?.isVisible = true
+            if (!isAdded || view == null) {
+                Utils.debugLog("AppListFragment: Fragment view is gone; skipping adapter update.")
+                return@launch
             }
+
+            Utils.debugLog("AppListFragment: Packages loaded, creating/updating adapter with ${freshLoadedPackages.size} items.")
+            adapter = StableArrayAdapter(uiContext, freshLoadedPackages)
+            listview?.adapter = adapter
+
+            Utils.debugLog("AppListFragment: Applying initial ViewModel filter '$initialQueryFromViewModel' after new adapter set.")
+            adapter?.filter?.filter(initialQueryFromViewModel)
+
+            listview?.isVisible = true
             loadingIndicator?.isVisible = false
             Utils.debugLog("AppListFragment: loadPackagesAndSetupAdapter finished.")
         }
@@ -240,8 +248,10 @@ class AppListFragment : Fragment(), SearchableFragment {
                     Utils.debugLog("CheckBox clicked! $pkgName")
 
                     val globalEditor = settings?.edit()
-                    val localSettings = requireActivity().getSharedPreferences(pkgName, Context.MODE_PRIVATE)
-                    val localEditor = localSettings?.edit()
+                    // Use the row's context instead of requireActivity(); the
+                    // fragment may already be detached when a late click lands.
+                    val localSettings = v.context.getSharedPreferences(pkgName, Context.MODE_PRIVATE)
+                    val localEditor = localSettings.edit()
 
                     if (checkBox.isChecked) {
                         globalEditor?.putBoolean(pkgName, true)

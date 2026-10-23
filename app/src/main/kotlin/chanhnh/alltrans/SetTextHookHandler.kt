@@ -27,6 +27,8 @@ class SetTextHookHandler : SafeHook() {
             return !text.isNullOrEmpty() && text.trim().isNotEmpty()
         }
 
+        fun isNoTranslationMarker(value: String?): Boolean = value == NO_TRANSLATION_MARKER
+
         fun shouldSkipTranslation(text: String): Boolean {
             val trimmed = text.trim()
 

@@ -39,6 +39,7 @@ object PreferenceManager {
     data class CachedPreferences(
         val enabled: Boolean,
         val localEnabled: Boolean,
+        val loadUrl: Boolean,
         val timestamp: Long = System.currentTimeMillis()
     )
 
@@ -63,6 +64,30 @@ object PreferenceManager {
     }
 
     /**
+     * WebView translation is only allowed when the app is enabled and the
+     * WebView option is actually on. This check is repeated in every WebView
+     * entry point so changing LoadURL at runtime does not keep the JS bridge active.
+     */
+    fun isWebViewTranslationEnabled(context: Context?): Boolean {
+        if (context == null) {
+            return false
+        }
+
+        val packageName = context.packageName
+        if (packageName.isNullOrEmpty()) {
+            return false
+        }
+
+        val cached = preferenceCache[packageName]
+        val now = System.currentTimeMillis()
+        if (cached != null && (now - cached.timestamp) < CACHE_VALIDITY_MS) {
+            return cached.enabled && cached.localEnabled && cached.loadUrl
+        }
+
+        return reloadPreferencesForPackage(context, packageName) && PreferenceList.LoadURL
+    }
+
+    /**
      * Força o recarregamento das preferências para um pacote
      */
     private fun reloadPreferencesForPackage(context: Context, packageName: String): Boolean {
@@ -72,7 +97,7 @@ object PreferenceManager {
             val prefsBundle = getPreferencesViaProviders(context, packageName)
             if (prefsBundle == null) {
                 Utils.debugLog("$TAG: No preferences found for $packageName")
-                preferenceCache[packageName] = CachedPreferences(false, false)
+                preferenceCache[packageName] = CachedPreferences(false, false, false)
                 return false
             }
 
@@ -81,7 +106,7 @@ object PreferenceManager {
 
             if (globalPref.isNullOrEmpty()) {
                 Utils.debugLog("$TAG: Empty global preferences for $packageName")
-                preferenceCache[packageName] = CachedPreferences(false, false)
+                preferenceCache[packageName] = CachedPreferences(false, false, false)
                 return false
             }
 
@@ -95,7 +120,7 @@ object PreferenceManager {
                 val localEnabled = PreferenceList.LocalEnabled
 
                 // Cachear o resultado
-                preferenceCache[packageName] = CachedPreferences(enabled, localEnabled)
+                preferenceCache[packageName] = CachedPreferences(enabled, localEnabled, PreferenceList.LoadURL)
 
                 Utils.debugLog("$TAG: Preferences for $packageName - Enabled: $enabled, LocalEnabled: $localEnabled")
                 return enabled && localEnabled
@@ -108,7 +133,7 @@ object PreferenceManager {
 
         } catch (e: Exception) {
             Utils.debugLog("$TAG: Error reloading preferences for $packageName: ${e.message}")
-            preferenceCache[packageName] = CachedPreferences(false, false)
+            preferenceCache[packageName] = CachedPreferences(false, false, false)
             return false
         }
     }

@@ -38,6 +38,7 @@ internal class AttachBaseContextHookHandler : SafeHook() {
 
     companion object {
         private const val KEY_VIETPHRASE_ENGINE_VERSION = "AllTransVietPhraseEngineVersion"
+        private const val KEY_EDGE_ENGINE_VERSION = "AllTransEdgeEngineVersion"
 
         // Rastreia quais pacotes já foram hookados para evitar hooks duplicados
         private val hookedPackages = ConcurrentHashMap.newKeySet<String>()
@@ -302,7 +303,8 @@ internal class AttachBaseContextHookHandler : SafeHook() {
         private fun manageCache(context: Context) {
             Utils.debugLog("manageCache for ${context.packageName}: Caching = ${PreferenceList.Caching}")
 
-            val engineCacheInvalidated = invalidateCacheForVietPhraseEngine(context)
+            val engineCacheInvalidated =
+                invalidateCacheForVietPhraseEngine(context) or invalidateCacheForEdgeEngine(context)
 
             if (PreferenceList.Caching) {
                 Utils.debugLog("Cache ENABLED for ${context.packageName}")
@@ -354,6 +356,30 @@ internal class AttachBaseContextHookHandler : SafeHook() {
                 PreferenceList.CachingTime = System.currentTimeMillis()
                 Utils.debugLog(
                     "VietPhrase engine version changed from $storedVersion to $currentVersion; " +
+                        "scheduling translation cache clear."
+                )
+            }
+            editor.apply()
+            return shouldClearCache
+        }
+
+        /**
+         * Invalida o cache persistido quando a implementação do Microsoft Translate muda.
+         * A versão antiga usava um endpoint de autenticação que deixou de funcionar; sem
+         * isso, textos marcados como "não traduzidos" continuariam travados no cache.
+         */
+        private fun invalidateCacheForEdgeEngine(context: Context): Boolean {
+            val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
+            val storedVersion = prefs.getInt(KEY_EDGE_ENGINE_VERSION, 0)
+            val currentVersion = EdgeProvider.ENGINE_VERSION
+            if (storedVersion >= currentVersion) return false
+
+            val editor = prefs.edit().putInt(KEY_EDGE_ENGINE_VERSION, currentVersion)
+            val shouldClearCache = PreferenceList.TranslatorProvider == "edge"
+            if (shouldClearCache) {
+                PreferenceList.CachingTime = System.currentTimeMillis()
+                Utils.debugLog(
+                    "Microsoft Translate engine version changed from $storedVersion to $currentVersion; " +
                         "scheduling translation cache clear."
                 )
             }

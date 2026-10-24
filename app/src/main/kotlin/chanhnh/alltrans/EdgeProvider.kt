@@ -30,7 +30,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
-import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 class EdgeProvider : ContentProvider() {
@@ -42,9 +41,6 @@ class EdgeProvider : ContentProvider() {
             .writeTimeout(15, TimeUnit.SECONDS)
             .build()
     }
-
-    private var cachedToken: String? = null
-    private var tokenExpiryTime: Long = 0
 
     override fun onCreate(): Boolean {
         Utils.debugLog("$TAG: onCreate")
@@ -78,91 +74,76 @@ class EdgeProvider : ContentProvider() {
         return createResultCursor(translatedText ?: textToTranslate, projection, startTime)
     }
 
-    private fun getAuthToken(): String? {
-        val now = System.currentTimeMillis()
-        if (cachedToken != null && now < tokenExpiryTime) {
-            return cachedToken
-        }
-
-        Utils.debugLog("$TAG: Fetching new auth token from Edge API")
-        val request = Request.Builder()
-            .url(AUTH_URL)
-            .header("User-Agent", USER_AGENT)
-            .build()
-
-        return try {
-            val response = httpClient.newCall(request).execute()
-            val token = response.body?.string()
-            if (response.isSuccessful && !token.isNullOrEmpty()) {
-                cachedToken = token
-                // Edge tokens typically last for 10 minutes (600s), let's cache for 9 minutes to be safe
-                tokenExpiryTime = now + TimeUnit.MINUTES.toMillis(9)
-                token
-            } else {
-                Log.e(TAG, "Failed to fetch Edge auth token: ${response.code}")
-                null
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching Edge auth token", e)
-            null
-        }
-    }
-
     private fun translateOnline(text: String, fromLang: String, toLang: String): String? {
-        val token = getAuthToken() ?: return null
-
         return try {
             val urlBuilder = Uri.parse(API_URL).buildUpon()
-                .appendQueryParameter("api-version", "3.0")
-                .appendQueryParameter("to", toLang)
-            
-            if (fromLang != "auto" && fromLang.isNotEmpty()) {
-                urlBuilder.appendQueryParameter("from", fromLang)
-            }
-            
-            val url = urlBuilder.toString()
+                .appendQueryParameter("isEnterpriseClient", "false")
+                .appendQueryParameter("to", mapLanguage(toLang))
 
-            val bodyArray = JSONArray()
-            val textObj = JSONObject()
-            textObj.put("Text", text)
-            bodyArray.put(textObj)
-            val bodyString = bodyArray.toString()
+            if (fromLang.isNotEmpty() && fromLang != "auto" && fromLang != "auto-detect") {
+                urlBuilder.appendQueryParameter("from", mapLanguage(fromLang))
+            }
+
+            val url = urlBuilder.toString()
+            val bodyString = JSONArray().put(text).toString()
 
             Utils.debugLog("$TAG: Calling Edge Translate API: $url")
 
             val request = Request.Builder()
                 .url(url)
                 .post(bodyString.toRequestBody(JSON_MEDIA_TYPE))
-                .addHeader("Authorization", "Bearer $token")
-                .addHeader("Content-Type", "application/json")
+                .header("User-Agent", USER_AGENT)
+                .header("Accept", "application/json")
                 .build()
 
-            val response = httpClient.newCall(request).execute()
-            val responseBody = response.body?.string()
-
-            if (!response.isSuccessful || responseBody.isNullOrEmpty()) {
-                Log.e(TAG, "Edge API error ${response.code}: $responseBody")
-                if (response.code == 401) {
-                    // Token might have expired, clear it
-                    cachedToken = null
+            httpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
+                if (!response.isSuccessful || responseBody.isNullOrBlank()) {
+                    Log.e(
+                        TAG,
+                        "Edge API error ${response.code}: ${responseBody.orEmpty().take(MAX_ERROR_LOG_LENGTH)}"
+                    )
+                    return null
                 }
-                return null
+
+                Utils.debugLog("$TAG: Edge API response: $responseBody")
+
+                // Response format: [{"translations":[{"text":"translated_text","to":"lang"}]}]
+                val jsonResponse = JSONArray(responseBody)
+                val translations = jsonResponse.optJSONObject(0)?.optJSONArray("translations")
+                if (translations == null || translations.length() == 0) {
+                    Log.e(TAG, "Edge API returned no translations: ${responseBody.take(MAX_ERROR_LOG_LENGTH)}")
+                    return null
+                }
+
+                val translated = translations.optJSONObject(0)?.optString("text").orEmpty()
+                if (translated.isEmpty()) {
+                    Log.e(TAG, "Edge API returned an empty translation: ${responseBody.take(MAX_ERROR_LOG_LENGTH)}")
+                    return null
+                }
+
+                Utils.debugLog("$TAG: Edge Translation result: [$text] -> [$translated]")
+                translated
             }
-
-            Utils.debugLog("$TAG: Edge API response: $responseBody")
-
-            // Response format: [{"translations":[{"text":"translated_text","to":"lang"}]}]
-            val jsonResponse = JSONArray(responseBody)
-            val firstResult = jsonResponse.getJSONObject(0)
-            val translations = firstResult.getJSONArray("translations")
-            val translated = translations.getJSONObject(0).getString("text")
-
-            Utils.debugLog("$TAG: Edge Translation result: [$text] -> [$translated]")
-            translated
         } catch (e: Exception) {
             Log.e(TAG, "Error calling Edge Translate API for: [$text]", e)
             null
         }
+    }
+
+    private fun mapLanguage(language: String): String = when (language) {
+        "zh", "zh-CN" -> "zh-Hans"
+        "zh-TW" -> "zh-Hant"
+        "tl" -> "fil"
+        "hmn" -> "mww"
+        "ku" -> "kmr"
+        "ckb" -> "ku"
+        "mn" -> "mn-Cyrl"
+        "no" -> "nb"
+        "lg" -> "lug"
+        "sr" -> "sr-Cyrl"
+        "mni-Mtei" -> "mni"
+        else -> language
     }
 
     private fun createResultCursor(result: String?, projection: Array<String?>?, startTimeNanos: Long): MatrixCursor {
@@ -192,10 +173,11 @@ class EdgeProvider : ContentProvider() {
         const val KEY_TEXT_TO_TRANSLATE: String = "text"
         const val KEY_FROM_LANGUAGE: String = "from"
         const val KEY_TO_LANGUAGE: String = "to"
+        const val ENGINE_VERSION = 1
 
-        private const val AUTH_URL = "https://edge.microsoft.com/translate/auth"
-        private const val API_URL = "https://api-edge.cognitive.microsofttranslator.com/translate"
+        private const val API_URL = "https://edge.microsoft.com/translate/translatetext"
         private const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
+        private const val MAX_ERROR_LOG_LENGTH = 512
         private val JSON_MEDIA_TYPE = "application/json".toMediaType()
     }
 }

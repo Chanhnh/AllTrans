@@ -262,9 +262,9 @@
         <item>@string/Afrikaans_micro</item>
         <item>@string/Albanian_google</item>
         <item>@string/Arabic_micro</item>
-        <item>Armenian</item>
-        <item>Azerbaijani</item>
-        <item>Basque</item>
+        <item>@string/Armenian_micro</item>
+        <item>@string/Azerbaijani_micro</item>
+        <item>@string/Basque_micro</item>
         <item>@string/Belarusian_google</item>
         <item>@string/Bangla_micro</item>
         <item>@string/Bosnian_micro</item>
@@ -296,7 +296,7 @@
         <item>@string/Italian_micro</item>
         <item>@string/Japanese_micro</item>
         <item>@string/Kannada_micro</item>
-        <item>Kazakh</item>
+        <item>@string/Kazakh_micro</item>
         <item>@string/Korean_micro</item>
         <item>@string/Latvian_micro</item>
         <item>@string/Lithuanian_micro</item>
@@ -306,8 +306,8 @@
         <item>@string/Maltese_micro</item>
         <item>@string/Maori_micro</item>
         <item>@string/Marathi_google</item>
-        <item>Mongolian</item>
-        <item>Nepali</item>
+        <item>@string/Mongolian_micro</item>
+        <item>@string/Nepali_micro</item>
         <item>@string/Norwegian_micro</item>
         <item>@string/Persian_micro</item>
         <item>@string/Polish_micro</item>
@@ -333,7 +333,7 @@
         <item>@string/Vietnamese_micro</item>
         <item>@string/Welsh_micro</item>
         <item>@string/Yucatec_Maya_micro</item>
-        <item>Zulu</item>
+        <item>@string/Zulu_micro</item>
         <item>@string/Malagasy_micro</item>
         <item>@string/Hmong_Daw_micro</item>
         <item>@string/Querétaro_Otomi_micro</item>

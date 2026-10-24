@@ -8,6 +8,9 @@ internal object PreferenceList {
     const val VIETPHRASE_SOURCE_LANGUAGE = "zh"
     const val VIETPHRASE_TARGET_LANGUAGE = "vi"
 
+    const val DEFAULT_SOURCE_LANGUAGE = "auto"
+    const val DEFAULT_TARGET_LANGUAGE = "vi"
+
     var Enabled: Boolean = false
     var LocalEnabled: Boolean = false
     var Debug: Boolean = false
@@ -26,30 +29,16 @@ internal object PreferenceList {
     var Delay: Int = 0
     var DelayWebView: Int = 0
     var Scroll: Boolean = false
-    var VietPhraseRuleEngine: Boolean = true
 
     var TranslatorProvider: String? = "g"
 
-    private fun normalizeTranslatorProvider(provider: String?): String {
-        return provider?.lowercase() ?: "g"
-    }
-
     fun isVietPhraseLanguagePair(fromLanguage: String?, toLanguage: String?): Boolean {
-        return (fromLanguage == "auto" || fromLanguage == VIETPHRASE_SOURCE_LANGUAGE) &&
+        return (fromLanguage == DEFAULT_SOURCE_LANGUAGE || fromLanguage == VIETPHRASE_SOURCE_LANGUAGE) &&
             toLanguage == VIETPHRASE_TARGET_LANGUAGE
     }
 
-    fun getValue(pref: MutableMap<String?, Any?>, key: String?, defValue: Any?): Any? {
-        val value = if (pref.containsKey(key)) pref[key] else defValue
-        return when (value) {
-            is Boolean -> value
-            is String -> {
-                if (value.equals("true", ignoreCase = true)) true
-                else if (value.equals("false", ignoreCase = true)) false
-                else value
-            }
-            else -> value
-        }
+    private fun getValue(pref: MutableMap<String?, Any?>, key: String?, defValue: Any?): Any? {
+        return if (pref.containsKey(key)) pref[key] else defValue
     }
 
     fun getPref(globalPref: String?, localPref: String?, packageName: String?) {
@@ -75,20 +64,24 @@ internal object PreferenceList {
             0L
         }
 
-        // Use TranslatorProvider from preferences
-        TranslatorProvider = normalizeTranslatorProvider(
+        TranslatorProvider =
             getValue(lPref, "TranslatorProvider", getValue(gPref, "TranslatorProvider", "g")) as String?
-        )
 
         val useLocalSettings = getValue(lPref, "OverRide", false) as Boolean
 
         if (useLocalSettings) {
             Utils.debugLog("Overriding global preferences with local ones for $packageName")
 
-            TranslateFromLanguage = getValue(lPref, "TranslateFromLanguage",
-                getValue(gPref, "TranslateFromLanguage", "auto")) as String?
-            TranslateToLanguage = getValue(lPref, "TranslateToLanguage",
-                getValue(gPref, "TranslateToLanguage", "en")) as String?
+            TranslateFromLanguage = getValue(
+                lPref,
+                "TranslateFromLanguage",
+                getValue(gPref, "TranslateFromLanguage", DEFAULT_SOURCE_LANGUAGE)
+            ) as String?
+            TranslateToLanguage = getValue(
+                lPref,
+                "TranslateToLanguage",
+                getValue(gPref, "TranslateToLanguage", DEFAULT_TARGET_LANGUAGE)
+            ) as String?
 
             SetText = getValue(lPref, "SetText", getValue(gPref, "SetText", true)) as Boolean
             SetHint = getValue(lPref, "SetHint", getValue(gPref, "SetHint", true)) as Boolean
@@ -101,22 +94,18 @@ internal object PreferenceList {
             Notif = getValue(lPref, "Notif", getValue(gPref, "Notif", true)) as Boolean
             Caching = getValue(lPref, "Cache", getValue(gPref, "Cache", true)) as Boolean
             Scroll = getValue(lPref, "Scroll", getValue(gPref, "Scroll", false)) as Boolean
-            VietPhraseRuleEngine = getValue(
-                lPref,
-                "VietPhraseRuleEngine",
-                getValue(gPref, "VietPhraseRuleEngine", true)
-            ) as Boolean
 
-            try {
-                Delay = (getValue(lPref, "Delay", getValue(gPref, "Delay", "0")) as String?)?.toIntOrNull() ?: 0
-                DelayWebView = (getValue(lPref, "DelayWebView", getValue(gPref, "DelayWebView", "500")) as String?)?.toIntOrNull() ?: 500
-            } catch (e: NumberFormatException) { /* Defaults already set */ }
-
+            Delay = (getValue(lPref, "Delay", getValue(gPref, "Delay", "0")) as String?)?.toIntOrNull() ?: 0
+            DelayWebView =
+                (getValue(lPref, "DelayWebView", getValue(gPref, "DelayWebView", "500")) as String?)?.toIntOrNull()
+                    ?: 500
         } else {
             Utils.debugLog("Using global preferences for $packageName (OverRide is false)")
 
-            TranslateFromLanguage = getValue(gPref, "TranslateFromLanguage", "auto") as String?
-            TranslateToLanguage = getValue(gPref, "TranslateToLanguage", "en") as String?
+            TranslateFromLanguage =
+                getValue(gPref, "TranslateFromLanguage", DEFAULT_SOURCE_LANGUAGE) as String?
+            TranslateToLanguage =
+                getValue(gPref, "TranslateToLanguage", DEFAULT_TARGET_LANGUAGE) as String?
 
             SetText = getValue(gPref, "SetText", true) as Boolean
             SetHint = getValue(gPref, "SetHint", true) as Boolean
@@ -125,12 +114,9 @@ internal object PreferenceList {
             Notif = getValue(gPref, "Notif", true) as Boolean
             Caching = getValue(gPref, "Cache", true) as Boolean
             Scroll = getValue(gPref, "Scroll", false) as Boolean
-            VietPhraseRuleEngine = getValue(gPref, "VietPhraseRuleEngine", true) as Boolean
 
-            try {
-                Delay = (getValue(gPref, "Delay", "0") as String?)?.toIntOrNull() ?: 0
-                DelayWebView = (getValue(gPref, "DelayWebView", "500") as String?)?.toIntOrNull() ?: 500
-            } catch (e: NumberFormatException) { /* Defaults already set */ }
+            Delay = (getValue(gPref, "Delay", "0") as String?)?.toIntOrNull() ?: 0
+            DelayWebView = (getValue(gPref, "DelayWebView", "500") as String?)?.toIntOrNull() ?: 500
         }
 
         if (TranslatorProvider == VIETPHRASE_PROVIDER) {
@@ -140,7 +126,6 @@ internal object PreferenceList {
 
         Utils.debugLog("---- Prefs loaded for $packageName ----")
         Utils.debugLog("Provider: $TranslatorProvider, From: $TranslateFromLanguage, To: $TranslateToLanguage")
-        Utils.debugLog("VietPhrase rule engine: $VietPhraseRuleEngine")
         Utils.debugLog("---- End Prefs for $packageName ----")
     }
 }

@@ -5,9 +5,9 @@ import java.text.Normalizer
 /**
  * Pure translation logic for the Vietphrase provider.
  *
- * The advanced path is a Kotlin port of the userscript core: rules first,
- * then names, then the longest VietPhrase entry, and finally Hán-Việt
- * characters for anything that is not in a dictionary.
+ * The pipeline is a Kotlin port of the userscript core: rules first, then
+ * names, then the longest VietPhrase entry, and finally Hán-Việt characters
+ * for anything that is not in a dictionary.
  *
  * Adapted from duongden's vietphrase-translator userscript (GPL-3.0):
  * https://github.com/duongden/script-vietphrase-translator
@@ -19,18 +19,17 @@ internal class VietPhraseTranslationEngine(
 ) {
     private val namesMaxLen = dictionaries.names.keys.maxOfOrNull { it.length } ?: 0
     private val vpMaxLen = dictionaries.vp.keys.maxOfOrNull { it.length } ?: 1
-    private val legacyMaxLen = maxOf(namesMaxLen, vpMaxLen).coerceAtLeast(1)
 
-    fun translate(text: String, advanced: Boolean): String {
+    fun translate(text: String): String {
         if (text.isEmpty()) return text
-        return if (advanced) translateAdvanced(text) else translateLegacy(text)
+        return translateCore(text)
     }
 
     // ---------------------------------------------------------------------
-    // Advanced rule/name/dictionary pipeline
+    // Rule/name/dictionary pipeline
     // ---------------------------------------------------------------------
 
-    private fun translateAdvanced(text: String): String {
+    private fun translateCore(text: String): String {
         var normalized = fixVietnamese(text)
         if (normalized.isBlank() || !hasHanChar(normalized)) return normalized
         normalized = normalizePunctuation(normalized)
@@ -295,93 +294,6 @@ internal class VietPhraseTranslationEngine(
     }
 
     // ---------------------------------------------------------------------
-    // Legacy provider path (kept behind the rule-engine preference)
-    // ---------------------------------------------------------------------
-
-    private fun translateLegacy(text: String): String {
-        val normalized = convertLegacyPunctuation(text)
-        val translatedTokens = tokenizeLegacy(normalized)
-            .filter { token -> token !in LEGACY_REMOVED_TOKENS }
-            .map { token ->
-                val dictionaryValue = dictionaries.vp[token] ?: dictionaries.names[token]
-                val translated = if (dictionaryValue != null) {
-                    firstMeaning(dictionaryValue, "/", "|")
-                } else {
-                    token
-                }
-                dictionaries.pa[translated] ?: translated
-            }
-
-        return processLegacyText(translatedTokens.joinToString(" "))
-    }
-
-    private fun tokenizeLegacy(text: String): List<String> {
-        val output = ArrayList<String>()
-        var currentIndex = 0
-
-        while (currentIndex < text.length) {
-            var matchedLength = 0
-            val remaining = text.length - currentIndex
-            for (length in minOf(legacyMaxLen, remaining) downTo 1) {
-                val candidate = text.substring(currentIndex, currentIndex + length)
-                if (dictionaries.vp.containsKey(candidate) || dictionaries.names.containsKey(candidate)) {
-                    matchedLength = length
-                    break
-                }
-            }
-
-            if (matchedLength > 0) {
-                output.add(text.substring(currentIndex, currentIndex + matchedLength))
-                currentIndex += matchedLength
-                continue
-            }
-
-            if (isLegacyChineseCharacter(text[currentIndex])) {
-                output.add(text[currentIndex].toString())
-                currentIndex++
-                continue
-            }
-
-            val builder = StringBuilder()
-            builder.append(text[currentIndex])
-            while (currentIndex + 1 < text.length && !isLegacyChineseCharacter(text[currentIndex + 1])) {
-                currentIndex++
-                builder.append(text[currentIndex])
-            }
-            output.add(builder.toString())
-            currentIndex++
-        }
-
-        return output
-    }
-
-    private fun convertLegacyPunctuation(text: String): String {
-        return buildString(text.length) {
-            text.forEach { char ->
-                append(LEGACY_PUNCTUATION[char] ?: char.toString())
-            }
-        }
-    }
-
-    private fun processLegacyText(text: String): String {
-        val collapsedLines = text
-            .split("\n")
-            .joinToString("\n") { line -> line.trim() }
-
-        val normalized = collapsedLines
-            .replace(Regex(" +([,.?!\\]\\>:};)])"), "$1 ")
-            .replace(Regex(" +([”’])"), "$1")
-            .replace(Regex("([<\\[(“‘{]) +"), " $1")
-            .replace(Regex(" +"), " ")
-
-        return Regex("(^\\s*|[“‘”’.!?\\[-]\\s*)(\\p{Ll})", setOf(RegexOption.MULTILINE))
-            .replace(normalized) { match ->
-                match.groupValues[1] + match.groupValues[2].uppercase()
-            }
-            .trim()
-    }
-
-    // ---------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------
 
@@ -408,10 +320,6 @@ internal class VietPhraseTranslationEngine(
             char.code == 0x3007
     }
 
-    private fun isLegacyChineseCharacter(char: Char): Boolean {
-        return char.code in 0x4E00..0x9FFF || char == '\n'
-    }
-
     private fun isVietLetter(char: Char): Boolean {
         return char in 'a'..'z' || char in 'A'..'Z' || char in 'À'..'ỹ'
     }
@@ -434,38 +342,9 @@ internal class VietPhraseTranslationEngine(
         private const val VIET_LOWER = "a-zàáâãèéêìíòóôõùúýăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỷỹ"
 
         private val DICH_LIEU_SET = setOf('的', '了', '着', '著')
-        private val LEGACY_REMOVED_TOKENS = setOf("的", "了", "著")
         private val CLOSE_CHARS = setOf('\u0003', ',', '.', ':', ';', '!', '?', ')', '»', ']')
         private val SENTENCE_END_RE = Regex("[.!?]\\s*$")
         private val OPEN_MARKER_END_RE = Regex("\u0002\\s*$")
-
-        private val LEGACY_PUNCTUATION = mapOf(
-            '。' to ".",
-            '，' to ",",
-            '、' to ",",
-            '；' to ";",
-            '！' to "!",
-            '？' to "?",
-            '：' to ":",
-            '（' to "(",
-            '）' to ")",
-            '〔' to "[",
-            '〕' to "]",
-            '【' to "[",
-            '】' to "]",
-            '｛' to "{",
-            '｝' to "}",
-            '『' to "“",
-            '』' to "”",
-            '～' to "~",
-            '〖' to "[",
-            '〗' to "]",
-            '〘' to "[",
-            '〙' to "]",
-            '〚' to "[",
-            '〛' to "]",
-            '　' to " "
-        )
 
         private val PUNCT_MAP = listOf(
             "。》" to ".\u0003",

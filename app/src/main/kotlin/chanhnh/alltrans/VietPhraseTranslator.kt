@@ -10,7 +10,7 @@ internal object VietPhraseTranslator {
      * Bump this when the translation algorithm or bundled dictionaries change
      * in a way that invalidates previously cached translations.
      */
-    const val ENGINE_VERSION = 2
+    const val ENGINE_VERSION = 3
 
     private const val TAG = "AllTrans:VietPhrase"
     private const val ASSET_DIR = "vietphrase"
@@ -25,14 +25,10 @@ internal object VietPhraseTranslator {
     @Volatile
     private var translationEngine: VietPhraseTranslationEngine? = null
 
-    fun translate(
-        context: Context,
-        text: String,
-        advanced: Boolean = PreferenceList.VietPhraseRuleEngine
-    ): String {
+    fun translate(context: Context, text: String): String {
         if (text.isEmpty()) return text
         val engine = getOrLoadEngine(context.applicationContext) ?: return text
-        return engine.translate(text, advanced)
+        return engine.translate(text)
     }
 
     private fun getOrLoadEngine(context: Context): VietPhraseTranslationEngine? {

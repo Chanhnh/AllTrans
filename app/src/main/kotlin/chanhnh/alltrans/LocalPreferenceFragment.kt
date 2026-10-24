@@ -22,38 +22,25 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
         preference.entries = resources.getTextArray(R.array.translatorProviderNames)
         preference.summaryProvider = Preference.SummaryProvider<ListPreference> { listPreference ->
             when (listPreference.value) {
+                "g" -> getString(R.string.translator_provider_google).lineSequence().firstOrNull()?.trim()
                 "edge" -> getString(R.string.translator_provider_microsoft).lineSequence().firstOrNull()?.trim()
-                PreferenceList.VIETPHRASE_PROVIDER -> getString(R.string.translator_provider_vietphrase).lineSequence().firstOrNull()?.trim()
-                else -> getString(R.string.translator_provider_google).lineSequence().firstOrNull()?.trim()
+                PreferenceList.VIETPHRASE_PROVIDER ->
+                    getString(R.string.translator_provider_vietphrase).lineSequence().firstOrNull()?.trim()
+                else -> {
+                    Log.e("AllTrans", "LocalPref: Unsupported translator provider: ${listPreference.value}")
+                    null
+                }
             }
         }
     }
 
-    private fun validateListPreferenceValue(listPreference: ListPreference?) {
-        if (listPreference == null) return
-        val currentValue: CharSequence? = listPreference.value
-        val entryValues = listPreference.entryValues
-        if (currentValue != null && entryValues != null) {
-            val found = entryValues.any { it == currentValue }
-            if (!found && entryValues.isNotEmpty()) {
-                listPreference.setValueIndex(0)
-                Log.w("AllTrans", "LocalPref: Resetting invalid value for: ${listPreference.key}")
-            }
-        }
-    }
-
-    private fun sortListPreferenceByEntries(preferenceKey: String) {
-        val preference = findPreference<ListPreference?>(preferenceKey)
-        if (preference == null || preference.entries == null || preference.entryValues == null) {
-            Log.w("AllTrans", "LocalPref: Cannot sort ListPreference: $preferenceKey")
-            return
-        }
-
-        val entries = preference.entries
-        val entryValues = preference.entryValues
+    private fun sortListPreferenceByEntries(preference: ListPreference?) {
+        preference ?: return
+        val entries = preference.entries ?: return
+        val entryValues = preference.entryValues ?: return
 
         if (entries.size != entryValues.size) {
-            Log.e("AllTrans", "LocalPref: Mismatch entries/entryValues for: $preferenceKey")
+            Log.e("AllTrans", "LocalPref: Mismatch entries/entryValues for: ${preference.key}")
             return
         }
 
@@ -81,18 +68,112 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
         preference.value = currentValue
     }
 
+    private fun applyLanguagePreference(
+        preference: ListPreference?,
+        namesRes: Int,
+        codesRes: Int,
+        defaultLanguage: String,
+        enabled: Boolean
+    ) {
+        preference ?: return
+        preference.entries = resources.getTextArray(namesRes)
+        preference.entryValues = resources.getTextArray(codesRes)
+        sortListPreferenceByEntries(preference)
+
+        val currentValue = preference.value
+        val entryValues = preference.entryValues
+        if (currentValue == null || entryValues == null || entryValues.none { it == currentValue }) {
+            Log.w(
+                "AllTrans",
+                "LocalPref: Resetting unsupported language for ${preference.key}: $currentValue -> $defaultLanguage"
+            )
+            preference.value = defaultLanguage
+        }
+        preference.isEnabled = enabled
+    }
+
+    private fun applyVietPhraseLanguages(
+        translateFromLanguage: ListPreference?,
+        translateToLanguage: ListPreference?
+    ) {
+        translateFromLanguage?.apply {
+            entries = arrayOf(getText(R.string.Chinese_google))
+            entryValues = arrayOf(PreferenceList.VIETPHRASE_SOURCE_LANGUAGE)
+            value = PreferenceList.VIETPHRASE_SOURCE_LANGUAGE
+            isEnabled = false
+        }
+        translateToLanguage?.apply {
+            entries = arrayOf(getText(R.string.Vietnamese_google))
+            entryValues = arrayOf(PreferenceList.VIETPHRASE_TARGET_LANGUAGE)
+            value = PreferenceList.VIETPHRASE_TARGET_LANGUAGE
+            isEnabled = false
+        }
+    }
+
+    private fun updateLanguageLists(
+        provider: String?,
+        translateFromLanguage: ListPreference?,
+        translateToLanguage: ListPreference?,
+        enabled: Boolean
+    ) {
+        when (provider) {
+            PreferenceList.VIETPHRASE_PROVIDER -> {
+                applyVietPhraseLanguages(translateFromLanguage, translateToLanguage)
+            }
+
+            "g" -> {
+                applyLanguagePreference(
+                    translateFromLanguage,
+                    R.array.languageNamesGoogle,
+                    R.array.languageCodesGoogle,
+                    PreferenceList.DEFAULT_SOURCE_LANGUAGE,
+                    enabled
+                )
+                applyLanguagePreference(
+                    translateToLanguage,
+                    R.array.languageNamesGoogle,
+                    R.array.languageCodesGoogle,
+                    PreferenceList.DEFAULT_TARGET_LANGUAGE,
+                    enabled
+                )
+            }
+
+            "edge" -> {
+                applyLanguagePreference(
+                    translateFromLanguage,
+                    R.array.languageNames,
+                    R.array.languageCodes,
+                    PreferenceList.DEFAULT_SOURCE_LANGUAGE,
+                    enabled
+                )
+                applyLanguagePreference(
+                    translateToLanguage,
+                    R.array.languageNames,
+                    R.array.languageCodes,
+                    PreferenceList.DEFAULT_TARGET_LANGUAGE,
+                    enabled
+                )
+            }
+
+            else -> {
+                Log.e("AllTrans", "LocalPref: Unsupported translator provider: $provider")
+                translateFromLanguage?.isEnabled = false
+                translateToLanguage?.isEnabled = false
+            }
+        }
+    }
+
     private fun enableLocalPrefs(enable: Boolean) {
         val keysToToggle = listOf(
             "TranslateFromLanguage", "TranslateToLanguage", "SetText",
-            "SetHint", "LoadURL", "Notif", "Cache", "Scroll", "Delay", "DelayWebView",
-            "VietPhraseRuleEngine"
+            "SetHint", "LoadURL", "Notif", "Cache", "Scroll", "Delay", "DelayWebView"
         )
         keysToToggle.forEach { key ->
             findPreference<Preference>(key)?.isEnabled = enable
         }
     }
 
-    private fun requestCacheClearForProviderChange(localPrefs: SharedPreferences?, packageName: String?) {
+    private fun requestCacheClear(localPrefs: SharedPreferences?, packageName: String?) {
         localPrefs?.edit()
             ?.putString("ClearCacheTime", System.currentTimeMillis().toString())
             ?.apply()
@@ -132,62 +213,37 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
 
         configureTranslatorProviderPreference(translatorProvider)
 
-        fun updateLanguageLists(provider: String?) {
+        fun refreshLanguageLists() {
             val localOverrideEnabled = findPreference<SwitchPreference>("OverRide")?.isChecked == true
-
-            if (provider == PreferenceList.VIETPHRASE_PROVIDER) {
-                translateFromLanguage?.apply {
-                    entries = arrayOf(getText(R.string.Chinese_google))
-                    entryValues = arrayOf(PreferenceList.VIETPHRASE_SOURCE_LANGUAGE)
-                    value = PreferenceList.VIETPHRASE_SOURCE_LANGUAGE
-                    isEnabled = false
-                }
-                translateToLanguage?.apply {
-                    entries = arrayOf(getText(R.string.Vietnamese_google))
-                    entryValues = arrayOf(PreferenceList.VIETPHRASE_TARGET_LANGUAGE)
-                    value = PreferenceList.VIETPHRASE_TARGET_LANGUAGE
-                    isEnabled = false
-                }
-                return
-            }
-
-            val (namesRes, codesRes) = when (provider) {
-                "edge" -> Pair(R.array.languageNames, R.array.languageCodes)
-                else -> Pair(R.array.languageNamesGoogle, R.array.languageCodesGoogle)
-            }
-
-            translateFromLanguage?.apply {
-                entries = resources.getTextArray(namesRes)
-                entryValues = resources.getTextArray(codesRes)
-                sortListPreferenceByEntries("TranslateFromLanguage")
-                validateListPreferenceValue(this)
-                isEnabled = localOverrideEnabled
-            }
-            translateToLanguage?.apply {
-                entries = resources.getTextArray(namesRes)
-                entryValues = resources.getTextArray(codesRes)
-                sortListPreferenceByEntries("TranslateToLanguage")
-                validateListPreferenceValue(this)
-                isEnabled = localOverrideEnabled
-            }
+            updateLanguageLists(
+                translatorProvider?.value,
+                translateFromLanguage,
+                translateToLanguage,
+                localOverrideEnabled
+            )
         }
 
         translatorProvider?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
-            val newProvider = newValue as String?
+            val newProvider = newValue as? String
             val oldProvider = (preference as? ListPreference)?.value
-            updateLanguageLists(newProvider)
+            updateLanguageLists(
+                newProvider,
+                translateFromLanguage,
+                translateToLanguage,
+                findPreference<SwitchPreference>("OverRide")?.isChecked == true
+            )
             if (oldProvider != newProvider) {
-                requestCacheClearForProviderChange(localPrefs, applicationInfo?.packageName)
+                requestCacheClear(localPrefs, applicationInfo?.packageName)
                 Toast.makeText(requireContext(), R.string.clear_cache_provider, Toast.LENGTH_SHORT).show()
             }
             true
         }
 
-        updateLanguageLists(translatorProvider?.value)
+        refreshLanguageLists()
 
         findPreference<SwitchPreference>("OverRide")?.setOnPreferenceChangeListener { _, newValue ->
             enableLocalPrefs(newValue as Boolean)
-            updateLanguageLists(translatorProvider?.value)
+            refreshLanguageLists()
             true
         }
 
@@ -199,9 +255,12 @@ class LocalPreferenceFragment : PreferenceFragmentCompat() {
             true
         }
 
-        findPreference<SwitchPreference>("VietPhraseRuleEngine")?.setOnPreferenceChangeListener { _, _ ->
-            requestCacheClearForProviderChange(localPrefs, applicationInfo?.packageName)
-            Toast.makeText(requireContext(), R.string.clear_cache_success, Toast.LENGTH_LONG).show()
+        translateFromLanguage?.setOnPreferenceChangeListener { _, _ ->
+            requestCacheClear(localPrefs, applicationInfo?.packageName)
+            true
+        }
+        translateToLanguage?.setOnPreferenceChangeListener { _, _ ->
+            requestCacheClear(localPrefs, applicationInfo?.packageName)
             true
         }
 

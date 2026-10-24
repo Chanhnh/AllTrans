@@ -24,9 +24,9 @@
     <string name="search">Search</string>
 
     <string name="app_name">"AllTrans"</string>
-    <string name="app_description">"In-app translations anywhere"</string>
+    <string name="app_description">"In-app translation anywhere"</string>
     <string name="clear_cache_success">"Please force-close the translated app. Its translation cache will be cleared the next time the app starts."</string>
-    <string name="wut_why_null">"Could not load the Per-app preference page. Close and re-open application again."</string>
+    <string name="wut_why_null">"Could not load the per-app settings page. Close and reopen the app."</string>
 
     <string name="app_icon">"App Icon"</string>
     <string name="example_application">"Example Application"</string>
@@ -41,58 +41,57 @@
 
     <!-- Preference Categories -->
     <string name="pref_cat_translate_settings">"Translate Settings"</string>
-    <string name="pref_cat_troubleshooting_info">"Translate Settings to Fix Apps Crashing or Not Translating"</string>
+    <string name="pref_cat_troubleshooting_info">"Translation settings to fix apps that crash or do not translate"</string>
     <string name="pref_cat_advanced_settings">"Advanced Settings"</string>
 
     <!-- master on off -->
     <string name="master_on_off">"Master On/Off"</string>
-    <string name="master_on_off_summary_off">"Module is turned off, no apps will be translated. Turn on to start using auto-translate!"</string>
-    <string name="master_on_off_summary_on">"Module is turned on, selected apps will be translated. Turn off to completely disable this module."</string>
+    <string name="master_on_off_summary_off">"The module is turned off, so no apps will be translated. Turn on to start using auto-translate!"</string>
+    <string name="master_on_off_summary_on">"The module is turned on; selected apps will be translated. Turn off to completely disable the module."</string>
 
 
     <!-- Categories Translate Settings -->
-    translator_provider
-    <string name="translator_provider">"Translation Service Provider"</string>
-    <string name="translator_provider_summary">"Choose which translation service to use: Google Translate, Microsoft Translate, or VietPhrase"</string>
+    <string name="translator_provider">"Translation Service"</string>
+    <string name="translator_provider_summary">"Choose the translation service to use: Google Translate, Microsoft Translate, or VietPhrase."</string>
     <string name="translator_provider_google">Google Translate\nUses the built-in Google integration. Requires an Internet connection.</string>
     <string name="translator_provider_microsoft">Microsoft Translate\nUses the built-in Microsoft integration. Requires an Internet connection.</string>
     <string name="translator_provider_vietphrase">VietPhrase\nUses local dictionary files for one-way Chinese to Vietnamese translation. No Internet connection is required.</string>
 
-    <string name="downloading">"Processing translation data. Please wait"</string>
+    <string name="downloading">"Processing translation data. Please wait."</string>
 
     <!--Translate From -->
     <string name="transFrom">"Translate From Language"</string>
-    <string name="transFrom_summary">"Language the app is originally in."</string>
+    <string name="transFrom_summary">"Language the app is currently in."</string>
 
     <!--Translate To -->
     <string name="transTo">"Translate To Language"</string>
-    <string name="transTo_summary">"Language you want the app to be translate into."</string>
+    <string name="transTo_summary">"Language you want the app to be translated into."</string>
 
 
     <!-- Categories Parts of Apps -->
     <!-- setText -->
     <string name="setText">"Translate Normal Text"</string>
-    <string name="setText_summary_off">"Not Translating Text written using Set Text. Turn on to enable."</string>
-    <string name="setText_summary_on">"Translating Text written using Set Text - Safe. Turn off to disable."</string>
+    <string name="setText_summary_off">"Not translating text set with setText. Turn on to enable."</string>
+    <string name="setText_summary_on">"Translating text set with setText — safe. Turn off to disable."</string>
 
     <!-- setHint -->
     <string name="setHint">"Translate Text Hints (Gray-Coloured Suggestions) in Text Boxes"</string>
-    <string name="setHint_summary_off">"Not Translating Text written using Set Hint. Turn on to enable."</string>
-    <string name="setHint_summary_on">"Translating Text written using Set Hint - Safe. Turn off to disable."</string>
+    <string name="setHint_summary_off">"Not translating text set with setHint. Turn on to enable."</string>
+    <string name="setHint_summary_on">"Translating text set with setHint — safe. Turn off to disable."</string>
 
     <string name="extended_view_translation">"Extended View Translation"</string>
     <string name="extended_view_translation_summary_off">"Only use the original TextView and setText translation path. Extended hooks such as StaticLayout.Builder.build(), layout constructors, framework View methods and custom View setters are disabled."</string>
     <string name="extended_view_translation_summary_on">"Enable additional translation hooks outside the original TextView path, including StaticLayout.Builder.build(), layout constructors, framework View methods and custom View setters."</string>
 
     <!-- webView -->
-    <string name="webView">"Translate Text in Web Pages inside Apps"</string>
-    <string name="webView_summary_off">"Not Translating Text in WebViews. Turn on to enable."</string>
-    <string name="webView_summary_on">"Translating Text inside WebView - Safe, May Not Work Always. Turn off to disable."</string>
+    <string name="webView">"Translate Text in WebView"</string>
+    <string name="webView_summary_off">"Not translating text in WebView. Turn on to enable."</string>
+    <string name="webView_summary_on">"Translating text inside WebView — safe, but may not always work. Turn off to disable."</string>
 
     <!-- notif -->
     <string name="notif">"Translate Notifications"</string>
-    <string name="notif_summary_off">"Not Translating Text in Notifications. Turn on to enable."</string>
-    <string name="notif_summary_on">"Translating Text inside Notifications - Safe, May sometimes crash apps. Turn off to disable."</string>
+    <string name="notif_summary_off">"Not translating text in notifications. Turn on to enable."</string>
+    <string name="notif_summary_on">"Translating text inside notifications — safe, but may sometimes crash apps. Turn off to disable."</string>
 
 
 
@@ -102,36 +101,32 @@
     <string name="caching_summary_off">"Not caching translated text. Translation may be slower and use more network data, but this can help with some apps. Turn on to cache translations."</string>
     <string name="caching_summary_on">"Caching translated text to improve speed and reduce repeated network requests. Turn off if a translated app becomes unstable."</string>
 
-    <string name="vietphrase_rule_engine">"VietPhrase Rule Engine"</string>
-    <string name="vietphrase_rule_engine_summary_on">"Using names, pronouns, number/date conversion, chapter labels, and formatting rules. Recommended."</string>
-    <string name="vietphrase_rule_engine_summary_off">"Using legacy dictionary translation only. Turn on for better names, numbers and punctuation."</string>
-
     <!-- delay -->
     <string name="delay">"Delay Before Replacing with Translated Text"</string>
-    <string name="delay_summary">"Set the time in milliseconds to wait before replace with translated text. Default Value is 0. Set to 1000–5000 if the translated app is crashing."</string>
+    <string name="delay_summary">"Set the time in milliseconds to wait before replacing the text with the translated text. The default is 0. Set to 1000–5000 if the translated app is crashing."</string>
 
     <!-- WebView Delay -->
     <string name="delay_webview">"Delay Before Starting to Translate WebViews"</string>
-    <string name="delay_webview_summary">"Set the time in milliseconds to wait before starting to translate WebViews. Default Value is 500. Set to 0 to increase translation speed. Set to 3000-5000 if part of web app are not translating."</string>
+    <string name="delay_webview_summary">"Set the time in milliseconds to wait before starting to translate WebViews. The default is 500. Set to 0 to increase translation speed. Set to 3000–5000 if part of the web app is not translating."</string>
 
     <!-- Scroll -->
     <string name="scroll">"Scroll Long Translated Text"</string>
-    <string name="scroll_summary_off">"Not scrolling translated text if it is too long. Text may be truncated, but will not interfere with the app&apos;s scrolling/clicking. Turn on to scroll long translations."</string>
-    <string name="scroll_summary_on">"Scrolling translated text if it is too long. This may interfere with the app&apos;s scrolling/clicking. Turn off to disable this scrolling."</string>
+    <string name="scroll_summary_off">"Do not scroll translated text if it is too long. Text may be truncated, but this will not interfere with the app's scrolling/clicking. Turn on to scroll long translations."</string>
+    <string name="scroll_summary_on">"Scroll translated text if it is too long. This may interfere with the app's scrolling/clicking. Turn off to disable scrolling."</string>
 
     <!-- Anonymous Usage and Crash Data -->
-    <string name="debug">"Advanced : Turn on Debug Mode."</string>
-    <string name="debug_summary_off">"Debug mode is off. Not writing debug data to logcat. Turn this on before sending error reports"</string>
-    <string name="debug_summary_on">"Debug mode is on. Writing logs to logcat. This decreases performance - turn off if not needed."</string>
+    <string name="debug">"Advanced: Enable debug mode."</string>
+    <string name="debug_summary_off">"Debug mode is off. Debug data is not written to logcat. Turn this on before sending error reports."</string>
+    <string name="debug_summary_on">"Debug mode is on. Logs are written to logcat. This decreases performance; turn it off if not needed."</string>
 
 
     <!-- Per App Preferences -->
 
     <!-- local on off -->
     <string name="local_on_off">"Translate This App"</string>
-    <string name="local_on_off_summary">"Turn off to stop translating this app"</string>
-    <string name="local_on_off_summary_off">"This app will not translated. Turn on to start using auto-translate!"</string>
-    <string name="local_on_off_summary_on">"This will be translated. Turn off to completely disable translating this app."</string>
+    <string name="local_on_off_summary">"Turn off to stop translating this app."</string>
+    <string name="local_on_off_summary_off">"This app will not be translated. Turn on to start using auto-translate!"</string>
+    <string name="local_on_off_summary_on">"This app will be translated. Turn off to completely disable translation for this app."</string>
 
     <!-- overRide Global -->
     <string name="overRide_global">"OverRide Global Settings"</string>
@@ -139,9 +134,9 @@
     <string name="overRide_global_summary_on">"Using Local Settings for this app. Turn off to use Global Settings."</string>
 
     <!-- clear cache -->
-    <string name="clear_cache">"Click to clear Translation Cache"</string>
-    <string name="clear_cache_summary">"Click to clear the app&apos;s translation cache. Use this after changing translation settings or if the app does not start correctly."</string>
-    <string name="clear_cache_provider">"Translation cache will be cleared because the provider changed."</string>
+    <string name="clear_cache">"Tap to clear translation cache"</string>
+    <string name="clear_cache_summary">"Tap to clear this app's translation cache. Use this after changing translation settings or if the app does not start correctly."</string>
+    <string name="clear_cache_provider">"Translation cache will be cleared because the translation service changed."</string>
     <!--- Google Language Names -->
     <string name="Automatic_google">Automatic (Google)</string>
     <string name="Afrikaans_google">"Afrikaans"</string>
@@ -277,10 +272,17 @@
     <string name="Cantonese_Traditional_micro">"Cantonese (Traditional)"</string>
     <string name="Chinese_Simplified_micro">"Chinese Simplified"</string>
     <string name="Chinese_Traditional_micro">"Chinese Traditional"</string>
-    <string name="status_downloading">Downloading...</string>
-    <string name="status_downloaded">Downloaded</string>
-    <string name="status_not_downloaded">Not Downloaded</string>
-    <string name="button_download">Download</string>
-    <string name="button_delete">Delete</string>
+    <string name="Armenian_micro">"Armenian"</string>
+    <string name="Azerbaijani_micro">"Azerbaijani"</string>
+    <string name="Basque_micro">"Basque"</string>
+    <string name="Kazakh_micro">"Kazakh"</string>
+    <string name="Mongolian_micro">"Mongolian"</string>
+    <string name="Nepali_micro">"Nepali"</string>
+    <string name="Zulu_micro">"Zulu"</string>
+    <string name="status_downloading">"Downloading…"</string>
+    <string name="status_downloaded">"Downloaded"</string>
+    <string name="status_not_downloaded">"Not downloaded"</string>
+    <string name="button_download">"Download"</string>
+    <string name="button_delete">"Delete"</string>
     <string name="Uzbek_micro">"Uzbek"</string>
 </resources>

@@ -8,25 +8,25 @@ class VietPhraseTranslationEngineTest {
     @Test
     fun chapterRuleUsesNumber() {
         val engine = createEngine(ruleText = "第<n>章=Chương {0}")
-        assertEquals("Chương 3", engine.translate("第三章", advanced = true))
+        assertEquals("Chương 3", engine.translate("第三章"))
     }
 
     @Test
     fun labelTokenUsesLabelDictionary() {
         val engine = createEngine(ruleText = "第<L>卷=Quyển {0}")
-        assertEquals("Quyển Chương", engine.translate("第章卷", advanced = true))
+        assertEquals("Quyển Chương", engine.translate("第章卷"))
     }
 
     @Test
     fun numberRuleConvertsChineseNumber() {
         val engine = createEngine(ruleText = "<n>个={0} cái")
-        assertEquals("123 cái", engine.translate("一百二十三个", advanced = true))
+        assertEquals("123 cái", engine.translate("一百二十三个"))
     }
 
     @Test
     fun yearRuleConvertsChineseYear() {
         val engine = createEngine(ruleText = "<y>年=năm {0}")
-        assertEquals("Năm 2024", engine.translate("二〇二四年", advanced = true))
+        assertEquals("Năm 2024", engine.translate("二〇二四年"))
     }
 
     @Test
@@ -36,7 +36,7 @@ class VietPhraseTranslationEngineTest {
             pronouns = mapOf("朋友" to "bạn"),
             vp = mapOf("朋友" to "bạn bè")
         )
-        assertEquals("Bạn (plural)", engine.translate("朋友们", advanced = true))
+        assertEquals("Bạn (plural)", engine.translate("朋友们"))
     }
 
     @Test
@@ -45,7 +45,7 @@ class VietPhraseTranslationEngineTest {
             names = mapOf("王小明" to "Vương Tiểu Minh"),
             vp = mapOf("来了" to "đã đến")
         )
-        assertEquals("Vương Tiểu Minh đã đến", engine.translate("王小明来了", advanced = true))
+        assertEquals("Vương Tiểu Minh đã đến", engine.translate("王小明来了"))
     }
 
     @Test
@@ -56,7 +56,7 @@ class VietPhraseTranslationEngineTest {
                 "世界" to "thế giới"
             )
         )
-        assertEquals("Xin chào, thế giới.", engine.translate("你好，世界。", advanced = true))
+        assertEquals("Xin chào, thế giới.", engine.translate("你好，世界。"))
     }
 
     @Test
@@ -65,13 +65,13 @@ class VietPhraseTranslationEngineTest {
             ruleText = "<w>世界={0} đặc biệt",
             vp = mapOf("你好" to "xin chào", "世界" to "thế giới")
         )
-        assertEquals("Xin chào đặc biệt", longerRule.translate("你好世界", advanced = true))
+        assertEquals("Xin chào đặc biệt", longerRule.translate("你好世界"))
 
         val equalRule = createEngine(
             ruleText = "你<w>=Chào {0}",
             vp = mapOf("你好" to "xin chào", "好" to "tốt")
         )
-        assertEquals("Xin chào", equalRule.translate("你好", advanced = true))
+        assertEquals("Xin chào", equalRule.translate("你好"))
     }
 
     @Test
@@ -82,7 +82,7 @@ class VietPhraseTranslationEngineTest {
                 "的" to "/của/đích"
             )
         )
-        assertEquals("Nhất", engine.translate("最的", advanced = true))
+        assertEquals("Nhất", engine.translate("最的"))
     }
 
     @Test
@@ -93,18 +93,7 @@ class VietPhraseTranslationEngineTest {
                 "世界" to "thế giới"
             )
         )
-        assertEquals("Ngươi tốt, thế giới", engine.translate("你好，\n世界", advanced = true))
-    }
-
-    @Test
-    fun legacyModeStillUsesTheOldDictionaryPath() {
-        val engine = createEngine(
-            vp = mapOf(
-                "你好" to "xin chào/tạm biệt",
-                "世界" to "thế giới"
-            )
-        )
-        assertEquals("Xin chào, thế giới.", engine.translate("你好，世界。", advanced = false))
+        assertEquals("Ngươi tốt, thế giới", engine.translate("你好，\n世界"))
     }
 
     @Test
@@ -115,7 +104,7 @@ class VietPhraseTranslationEngineTest {
         )
         assertTrue(engine.rules.errors.any { it.line == 1 })
         assertTrue(engine.rules.errors.any { it.line == 2 })
-        assertEquals("123 cái", engine.translate("一百二十三个", advanced = true))
+        assertEquals("123 cái", engine.translate("一百二十三个"))
     }
 
     private fun createEngine(

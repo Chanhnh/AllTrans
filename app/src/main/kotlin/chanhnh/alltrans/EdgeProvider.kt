@@ -57,7 +57,7 @@ class EdgeProvider : ContentProvider() {
         val startTime = System.nanoTime()
         Utils.debugLog("$TAG: Received query URI: $uri")
 
-        val fromLanguage = uri.getQueryParameter(KEY_FROM_LANGUAGE) ?: "auto"
+        val fromLanguage = uri.getQueryParameter(KEY_FROM_LANGUAGE) ?: PreferenceList.DEFAULT_SOURCE_LANGUAGE
         val toLanguage = uri.getQueryParameter(KEY_TO_LANGUAGE)
         val textToTranslate = uri.getQueryParameter(KEY_TEXT_TO_TRANSLATE)
 
@@ -78,10 +78,10 @@ class EdgeProvider : ContentProvider() {
         return try {
             val urlBuilder = Uri.parse(API_URL).buildUpon()
                 .appendQueryParameter("isEnterpriseClient", "false")
-                .appendQueryParameter("to", mapLanguage(toLang))
+                .appendQueryParameter("to", toLang)
 
-            if (fromLang.isNotEmpty() && fromLang != "auto" && fromLang != "auto-detect") {
-                urlBuilder.appendQueryParameter("from", mapLanguage(fromLang))
+            if (fromLang.isNotEmpty() && fromLang != PreferenceList.DEFAULT_SOURCE_LANGUAGE && fromLang != "auto-detect") {
+                urlBuilder.appendQueryParameter("from", fromLang)
             }
 
             val url = urlBuilder.toString()
@@ -131,21 +131,6 @@ class EdgeProvider : ContentProvider() {
         }
     }
 
-    private fun mapLanguage(language: String): String = when (language) {
-        "zh", "zh-CN" -> "zh-Hans"
-        "zh-TW" -> "zh-Hant"
-        "tl" -> "fil"
-        "hmn" -> "mww"
-        "ku" -> "kmr"
-        "ckb" -> "ku"
-        "mn" -> "mn-Cyrl"
-        "no" -> "nb"
-        "lg" -> "lug"
-        "sr" -> "sr-Cyrl"
-        "mni-Mtei" -> "mni"
-        else -> language
-    }
-
     private fun createResultCursor(result: String?, projection: Array<String?>?, startTimeNanos: Long): MatrixCursor {
         val columns = if (projection.isNullOrEmpty()) arrayOf(COLUMN_TRANSLATE) else projection
         val cursor = MatrixCursor(columns)
@@ -173,7 +158,7 @@ class EdgeProvider : ContentProvider() {
         const val KEY_TEXT_TO_TRANSLATE: String = "text"
         const val KEY_FROM_LANGUAGE: String = "from"
         const val KEY_TO_LANGUAGE: String = "to"
-        const val ENGINE_VERSION = 1
+        const val ENGINE_VERSION = 2
 
         private const val API_URL = "https://edge.microsoft.com/translate/translatetext"
         private const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"

@@ -89,8 +89,8 @@ internal class GetTranslateToken {
 
     private fun createDeduplicationKey(text: String): String {
         val provider = PreferenceList.TranslatorProvider ?: "g"
-        val from = PreferenceList.TranslateFromLanguage ?: "auto"
-        val to = PreferenceList.TranslateToLanguage ?: "en"
+        val from = PreferenceList.TranslateFromLanguage ?: PreferenceList.DEFAULT_SOURCE_LANGUAGE
+        val to = PreferenceList.TranslateToLanguage ?: PreferenceList.DEFAULT_TARGET_LANGUAGE
         return "$provider|$from|$to|$text"
     }
 
@@ -182,9 +182,13 @@ internal class GetTranslateToken {
 
     private fun queryProvider(provider: String, text: String, fromLang: String, toLang: String): String? {
         return when (provider) {
+            "g" -> queryGoogleProvider(text, fromLang, toLang)
             "edge" -> queryEdgeProvider(text, fromLang, toLang)
             PreferenceList.VIETPHRASE_PROVIDER -> queryVietPhraseProvider(text, fromLang, toLang)
-            else -> queryGoogleProvider(text, fromLang, toLang)
+            else -> {
+                Log.e(TAG, "Unsupported translator provider: $provider")
+                null
+            }
         }
     }
 
@@ -239,7 +243,7 @@ internal class GetTranslateToken {
         try {
             val encodedText = URLEncoder.encode(text, "UTF-8")
             val queryParams =
-                "?from=${URLEncoder.encode(fromLang ?: "auto", "UTF-8")}&to=${URLEncoder.encode(toLang ?: "en", "UTF-8")}&text=$encodedText"
+                "?from=${URLEncoder.encode(fromLang ?: PreferenceList.DEFAULT_SOURCE_LANGUAGE, "UTF-8")}&to=${URLEncoder.encode(toLang ?: PreferenceList.DEFAULT_TARGET_LANGUAGE, "UTF-8")}&text=$encodedText"
             directUri = "content://chanhnh.alltrans.GtransProvider$queryParams".toUri()
             proxyUri = "content://settings/system/alltransProxyProviderURI/chanhnh.alltrans.GtransProvider$queryParams".toUri()
         } catch (e: UnsupportedEncodingException) {
@@ -333,7 +337,7 @@ internal class GetTranslateToken {
         try {
             val encodedText = URLEncoder.encode(text, "UTF-8")
             val queryParams =
-                "?from=${URLEncoder.encode(fromLang ?: "auto", "UTF-8")}&to=${URLEncoder.encode(toLang ?: "en", "UTF-8")}&text=$encodedText"
+                "?from=${URLEncoder.encode(fromLang ?: PreferenceList.DEFAULT_SOURCE_LANGUAGE, "UTF-8")}&to=${URLEncoder.encode(toLang ?: PreferenceList.DEFAULT_TARGET_LANGUAGE, "UTF-8")}&text=$encodedText"
             directUri = "content://chanhnh.alltrans.EdgeProvider$queryParams".toUri()
             proxyUri = "content://settings/system/alltransProxyProviderURI/chanhnh.alltrans.EdgeProvider$queryParams".toUri()
         } catch (e: UnsupportedEncodingException) {
@@ -424,11 +428,10 @@ internal class GetTranslateToken {
         val proxyUri: Uri
         try {
             val encodedText = URLEncoder.encode(text, "UTF-8")
-            val ruleEngine = if (PreferenceList.VietPhraseRuleEngine) "1" else "0"
             val queryParams =
                 "?from=${URLEncoder.encode(fromLang ?: PreferenceList.VIETPHRASE_SOURCE_LANGUAGE, "UTF-8")}" +
                     "&to=${URLEncoder.encode(toLang ?: PreferenceList.VIETPHRASE_TARGET_LANGUAGE, "UTF-8")}" +
-                    "&rules=$ruleEngine&text=$encodedText"
+                    "&text=$encodedText"
             directUri = "content://chanhnh.alltrans.VietPhraseProvider$queryParams".toUri()
             proxyUri = "content://settings/system/alltransProxyProviderURI/chanhnh.alltrans.VietPhraseProvider$queryParams".toUri()
         } catch (e: UnsupportedEncodingException) {
@@ -525,11 +528,11 @@ internal class GetTranslateToken {
         }
 
         try {
-            val fromLang = PreferenceList.TranslateFromLanguage ?: "auto"
-            val toLang = PreferenceList.TranslateToLanguage ?: "en"
+            val fromLang = PreferenceList.TranslateFromLanguage ?: PreferenceList.DEFAULT_SOURCE_LANGUAGE
+            val toLang = PreferenceList.TranslateToLanguage ?: PreferenceList.DEFAULT_TARGET_LANGUAGE
 
             // Skip translation if source == target (non-auto)
-            if (fromLang != "auto" && fromLang == toLang) {
+            if (fromLang != PreferenceList.DEFAULT_SOURCE_LANGUAGE && fromLang == toLang) {
                 if (callback.forceCacheResult) {
                     ViewTextCache.markNoTranslation(textToTranslate)
                 }

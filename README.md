@@ -7,7 +7,7 @@ AllTrans là một module Xposed/LSPosed giúp dịch giao diện ứng dụng A
 ## Tổng quan
 
 - **Tên gói:** `chanhnh.alltrans`
-- **Phiên bản:** `2.0.0` (`versionCode` 200)
+- **Phiên bản:** `3.0.0` (`versionCode` 300)
 - **Android tối thiểu:** Android 10 (API 29)
 - **Compile/target SDK:** 36
 - **Nền tảng:** LSPosed 2.1+ hoặc môi trường Xposed tương thích libxposed API
@@ -167,8 +167,8 @@ Dự án dùng Gradle Android application module, Kotlin và Java 17.
 
 APK đầu ra:
 
-- `app/build/outputs/apk/debug/AllTrans-v2.0.0-debug.apk`
-- `app/build/outputs/apk/release/AllTrans-v2.0.0-release.apk`
+- `app/build/outputs/apk/debug/AllTrans-v3.0.0-debug.apk`
+- `app/build/outputs/apk/release/AllTrans-v3.0.0-release.apk`
 
 Để ký bản release, cấu hình các thuộc tính sau trong `gradle.properties`:
 

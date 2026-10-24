@@ -7,7 +7,7 @@ AllTrans is an Xposed/LSPosed module that translates Android app interfaces at r
 ## Overview
 
 - **Package name:** `chanhnh.alltrans`
-- **Version:** `2.0.0` (`versionCode` 200)
+- **Version:** `3.0.0` (`versionCode` 300)
 - **Minimum Android:** Android 10 (API 29)
 - **Compile/target SDK:** 36
 - **Platform:** LSPosed 2.1+ or an Xposed environment compatible with the libxposed API
@@ -167,8 +167,8 @@ This project uses a Gradle Android application module, Kotlin, and Java 17.
 
 APK outputs:
 
-- `app/build/outputs/apk/debug/AllTrans-v2.0.0-debug.apk`
-- `app/build/outputs/apk/release/AllTrans-v2.0.0-release.apk`
+- `app/build/outputs/apk/debug/AllTrans-v3.0.0-debug.apk`
+- `app/build/outputs/apk/release/AllTrans-v3.0.0-release.apk`
 
 To sign a release build, configure these properties in `gradle.properties`:
 
